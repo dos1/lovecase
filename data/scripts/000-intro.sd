@@ -1,0 +1,22 @@
+SCENE blank
+ACTOR blank
+DELAY 2
+SAYAC 0j001 My name is Detective Jack.
+SAYAC 0j002 I'm on a case...
+SAYAC 0j003 ..but not on a regular one.
+ACTOR jack
+SAYAC 0j004 You see, I've got a task from my partner.
+SAYAC 0j005 On our last job, he said:
+SAYAC 0j006 "Hey, Jack, you're so grumpy. Maybe you should find some love!"
+SAYAC 0j007 So I took the case.
+SCENE alley
+ACTOR blank
+DELAY 1
+SAYAC 0j008 I'm going to use my best skills.
+SAYAC 0j009 I'm going to find the evidence.
+SAYAC 0j010 I'm going to make people talk
+SAYAC 0j011 because I'm the best detective in town.
+SAYAC 0j012 I'm Detective Jack
+SAYAC 0j013 and I'm going to find the love.
+FADEO
+SCRIP 001-blondie.sd

@@ -1,0 +1,86 @@
+SCENE park
+FADEI
+SAYJK 0j014 It's pretty nice and warm today.
+EVIDE evi01 000 Nice and warm.
+TUROR TIP: Press N to check the notes you made.
+ACTOR blondie
+SAYJK 1j001 Good morning, lady!
+SAYAC 1b001 Oh, good morning!
+-----
+DIALO 1j002 Are you available for a short talk?
+  CMD SAYAC 1b001 Sure!
+DIALO 1j003 Nice weather it is, isn't it?
+  CMD SAYAC 1b002 Yes, it is! And it's pretty hot!
+  CMD EMOTI wink
+  CMD SAYAC 1b003 Just like you!
+  CMD EMOTI default
+  CMD SETVA hot
+DIALO 1j004 I have a business.
+  CMD EMOTI worry
+  CMD SAYAC 1b004 Uhm, what is it?
+DIALO 1j005 I want to know what love is.
+  CMD EMOTI angry
+  CMD SAYAC 1b005 Go away, you pervert!
+  CMD GOTO! pervert
+RUND!
+-----
+IFVAR hot
+  CMD SAYJK 1j006 Oh yes, this suit makes me pretty hot.
+  CMD EMOTI confused
+  CMD SAYJK 1j007 It's not really made for temperatures like this.
+  CMD SAYJK 1j008 But, back to business.
+  CMD EMOTI worry
+ENDME
+-----
+DIALO 1j012 Do you know anything about love?
+  CMD EMOTI wink
+  CMD SAYAC 1b006 Oooh, plenty!
+  CMD EMOTI default
+  CMD SAYAC 1b007 Love is all around us!
+  CMD EMOTI wink
+  CMD SAYAC 1b008 But... why are you asking?
+DIALO 1j013 Where can I find some love?
+  CMD EMOTI angry
+  CMD SAYAC 1b009 I'm sure you can find some places that'll help you.
+  CMD EVIDE evi02 010 Love places exist.
+  CMD SAYAC 1b010 Weirdo.
+  CMD GOTO! pervert
+DIALO 1j014 Give me love.
+  CMD EMOTI angry
+  CMD SAYAC 1b005 Go away, you pervert!
+  CMD GOTO! pervert
+DIALO 1j015 Tell me something lovely.
+  CMD EMOTI worry
+  CMD SAYAC 1b011 Uhm...
+  CMD EMOTI wink
+  CMD SAYAC 1b012 Your coat is pretty lovely!
+  CMD SAYJK 1j016 Is it? Hmm...
+  CMD EVIDE 050 evi03 My coat is involved. 
+  CMD EMOTI default
+  CMD SAYAC 1b013 Anything else?
+RUND!
+SAYJK 1j017 I'm on a case.
+SAYJK 1j018 Thank you for your cooperation!
+EMOTI worry
+SAYAC 1b014 Uhm... you're welcome?
+SAYJK 1j019 Good bye!
+EMOTI smile
+SAYAC 1b015 Bye!
+ACTOR blank
+SAYJK 1j020 That was informative.
+SAYJK 1j021 Let's take a look somewhere else.
+GOTO! beach
+-----
+LABEL pervert
+-----
+ACTOR blank
+DELAY 2
+SAYJK 1j009 She sure knows something
+SAYJK 1j010 but I don't think I'll make her talk now.
+SAYJK 1j011 Let's take a look for other witnesses.
+-----
+LABEL beach
+-----
+ACTOR blank
+FADEO
+ENDME
