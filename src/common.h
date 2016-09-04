@@ -13,6 +13,8 @@ struct CommonResources {
 
 	ALLEGRO_SAMPLE *sample2;
 	ALLEGRO_SAMPLE_INSTANCE *music2;
+
+	bool notebook_enabled;
 };
 
 struct CommonResources* CreateGameData(struct Game *game);

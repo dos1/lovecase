@@ -40,6 +40,8 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	al_attach_sample_instance_to_mixer(data->music2, game->audio.music);
 	al_set_sample_instance_playmode(data->music2, ALLEGRO_PLAYMODE_LOOP);
 
+	data->notebook_enabled = game->config.debug;
+
 	return data;
 }
 

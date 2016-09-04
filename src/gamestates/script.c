@@ -38,8 +38,6 @@ struct GamestateResources {
 		int dialog_highlight;
 		bool speech_jack;
 
-		bool notebook_enabled;
-
 		char *tut_text;
 
 		int selected;
@@ -199,7 +197,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		TM_SkipDelay(data->timeline);
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_N)) {
-		data->notebook_on = data->notebook_enabled;
+		data->notebook_on = game->data->notebook_enabled;
 		data->tut_text = NULL;
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_1)) {
@@ -298,7 +296,7 @@ bool Tutorial(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 		data->tut_text = text;
-		data->notebook_enabled = true;
+		game->data->notebook_enabled = true;
 	}
 	if (state == TM_ACTIONSTATE_RUNNING) {
 		if (data->skip_to) { return true; }
@@ -707,7 +705,7 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	data->dialogs[2] = (struct Dialog){.text = "lala3"};
 	data->dialogs[3] = (struct Dialog){.text = "lala4"};*/
 
-	data->notebook_enabled = game->config.debug;
+
 }
 
 void Gamestate_Stop(struct Game *game, struct GamestateResources* data) {
