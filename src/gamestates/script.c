@@ -74,6 +74,11 @@ struct GamestateResources {
 		ALLEGRO_BITMAP *notebook;
 
 		bool notebook_on;
+
+		int mousex, mousey;
+		int mouse_visible;
+
+		ALLEGRO_BITMAP *cursor;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -88,6 +93,9 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	}*/
 	if (data->scene) {
 		AnimateCharacter(game, data->scene, 1);
+	}
+	if (data->mouse_visible) {
+		data->mouse_visible--;
 	}
 
 }
@@ -153,6 +161,10 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 			    ALLEGRO_ALIGN_LEFT, data->dialogs[i].text + 6);
 		}
 	}
+
+	if (data->mouse_visible) {
+		al_draw_bitmap(data->cursor, data->mousex, data->mousey, 0);
+	}
 }
 
 void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, ALLEGRO_EVENT *ev) {
@@ -207,6 +219,32 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_UP) && (ev->keyboard.keycode == ALLEGRO_KEY_4)) {
 		data->selected = 3;
+	}
+
+	if (ev->type==ALLEGRO_EVENT_MOUSE_AXES) {
+		data->mousex = (ev->mouse.x / (float)al_get_display_width(game->display)) * game->viewport.width;
+		data->mousey = (ev->mouse.y / (float)al_get_display_height(game->display)) * game->viewport.height;
+		data->mouse_visible = 180;
+
+		if (data->dialog_enabled) {
+			if (data->mousey >= (175 - (data->dialog_count+1)*10)) {
+				int y = data->mousey  - (175 - (data->dialog_count+1)*10);
+				data->dialog_highlight = y / 10;
+			} else {
+				data->dialog_highlight = -1;
+			}
+		}
+	}
+	if (ev->type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+		if (data->dialog_enabled) {
+
+			data->selected = data->dialog_highlight;
+		} else {
+			data->notebook_on = false;
+			data->speech_counter = 1;
+			data->delay = 1;
+			TM_SkipDelay(data->timeline);
+		}
 	}
 }
 
@@ -564,6 +602,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->script_file = al_fopen(GetDataFilePath(game, path), "r");
 	data->icon = al_load_bitmap(GetDataFilePath(game, GetGameName(game, "icons/%s.png")));
 	data->notebook = al_load_bitmap(GetDataFilePath(game, "notebook.png"));
+	data->cursor = al_load_bitmap(GetDataFilePath(game, "cursor.png"));
 
 	data->timeline = TM_Init(game, "script");
 
