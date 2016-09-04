@@ -1,0 +1,131 @@
+SCENE beach
+ACTOR bikini
+FADEI
+SAYJK 2j001 Good morning, dear lady!
+SAYAC 2b001 Hi there!
+SAYJK 2j002 Let me introduce myself.
+SAYJK 2j003 My name is Detective Jack.
+EMOTI surprised
+SAYAC 2b002 That's... a pretty cool name.
+SAYJK 2j004 Can I ask you some questions?
+EMOTI smirk
+SAYAC 2b003 Sure! But just in case...
+EMOTI default
+SAYAC 2b004 I didn't murder anyone! Haha!
+SAYJK 2j005 We'll see about that.
+EMOTI sad
+SAYAC 2b005 Oh, c'mon, lighten up!
+EMOTI default
+SAYAC 2b006 It's such a lovely day!
+SAYJK 2j006 Aha!
+EVIDE evi10 010 Suspect: day.
+EMOTI surprised
+SAYAC 2b007 You wanted to ask me something?
+EMOTI default
+-----
+DIALO 2j007 What is love?
+  CMD EMOTI surprised
+  CMD SAYAC 2b008 They say it's methylethylamine in our brains, but I think it's way deeper.
+  CMD EMOTI default
+  CMD SAYAC 2b009 Is that what a detective should be looking for though?
+  CMD SAYJK 2j011 Well, yes, it is.
+  CMD EVIDE evi11 100 Suspect: methylethylamine
+  CMD EMOTI smirk
+  CMD SAYAC 2b010 You're weird.
+  CMD EMOTI default
+  CMD SAYAC 2b011 But I like it!
+DIALO 2j008 What are you doing here?
+  CMD SAYAC 2b012 Duh! I'm playing beach volleyball!
+  CMD EMOTI smirk
+  CMD SAYAC 2b013 You want to join?
+  CMD SAYJK 2j012 No, thanks.
+  CMD EMOTI default
+  CMD SAYAC 2b014 As you wish!
+DIALO 2j009 Love. Tell me about it.
+  CMD EMOTI smirk
+  CMD SAYAC 2b015 Oh, my love, that's not how you get girls!
+  CMD EVIDE evi012 050 I'm love???
+  CMD EMOTI default
+  CMD SAYAC 2b016 Just look around. All these people, all these couples!
+  CMD SAYAC 2b017 Playing, spending time with each other!
+  CMD SAYAC 2b018 But if you ask me...
+  CMD EMOTI smirk
+  CMD SAYAC 2b019 I think love is about paid Netflix account!
+  CMD EMOTI default
+  CMD SAYAC 2b020 *chuckles*
+  CMD EVIDE evi013 150 Netflix
+DIALO 2j010 Give me love.
+  CMD EMOTI smirk
+  CMD SAYAC 2b021 Give me L!
+  CMD EMOTI surprised
+  CMD SAYAC 2b022 Give me O!
+  CMD EMOTI smirk
+  CMD SAYAC 2b023 Give me V!
+  CMD EMOTI default
+  CMD SAYAC 2b024 Give me E!
+  CMD SAYAC 2b025 *chuckles*
+  CMD EVIDE evi014 Fragmented into letters?
+RUND!
+-----
+DIALO 2j007 What is love?
+  CMD CHECK twice
+  CMD EMOTI surprised
+  CMD SAYAC 2b008 They say it's methylethylamine in our brains, but I think it's way deeper.
+  CMD EMOTI default
+  CMD SAYAC 2b009 Is that what a detective should be looking for though?
+  CMD SAYJK 2j011 Well, yes, it is.
+  CMD EVIDE evi11 100 Suspect: methylethylamine
+  CMD EMOTI smirk
+  CMD SAYAC 2b010 You're weird.
+  CMD EMOTI default
+  CMD SAYAC 2b011 But I like it!
+DIALO 2j008 What are you doing here?
+  CMD CHECK twice
+  CMD SAYAC 2b012 Duh! I'm playing beach volleyball!
+  CMD EMOTI smirk
+  CMD SAYAC 2b013 You want to join?
+  CMD SAYJK 2j012 No, thanks.
+  CMD EMOTI default
+  CMD SAYAC 2b014 As you wish!
+DIALO 2j009 Love. Tell me about it.
+  CMD CHECK twice
+  CMD EMOTI smirk
+  CMD SAYAC 2b015 Oh, my love, that's not how you get girls!
+  CMD EVIDE evi012 050 I'm love???
+  CMD EMOTI default
+  CMD SAYAC 2b016 Just look around. All these people, all these couples!
+  CMD SAYAC 2b017 Playing, spending time with each other!
+  CMD SAYAC 2b018 But if you ask me...
+  CMD EMOTI smirk
+  CMD SAYAC 2b019 I think love is about paid Netflix account!
+  CMD EMOTI default
+  CMD SAYAC 2b020 *chuckles*
+  CMD EVIDE evi013 150 Netflix
+DIALO 2j010 Give me love.
+  CMD CHECK twice
+  CMD EMOTI smirk
+  CMD SAYAC 2b021 Give me L!
+  CMD EMOTI surprised
+  CMD SAYAC 2b022 Give me O!
+  CMD EMOTI smirk
+  CMD SAYAC 2b023 Give me V!
+  CMD EMOTI default
+  CMD SAYAC 2b024 Give me E!
+  CMD SAYAC 2b025 *chuckles*
+  CMD EVIDE evi014 Fragmented into letters?
+RUND!
+GOTO! end
+-----
+LABEL twice
+EMOTI surprised
+SAYAC 2b027 You already asked me that!
+SAYJK 2j014 Oh, did I?
+-----
+LABEL end
+EMOTI smirk
+SAYJK 2j013 I think that's all I needed to know. Thank you!
+EMOTI default
+SAYAC 2b026 Have a nice day, Mr. Detective!
+-----
+FADEO
+CLOSE

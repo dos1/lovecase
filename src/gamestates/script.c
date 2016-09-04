@@ -79,6 +79,8 @@ struct GamestateResources {
 		int mouse_visible;
 
 		ALLEGRO_BITMAP *cursor;
+
+		int prev_selected;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -362,6 +364,20 @@ bool GoTo(struct Game *game, struct TM_Action *action, enum TM_ActionState state
 	return true;
 }
 
+bool GoToCheck(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		if (data->prev_selected == data->selected) {
+			PrintConsole(game, "jumping to label %s", name);
+			data->skip_to = name;
+		}
+	}
+	return true;
+}
+
+
 bool Label(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
 	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
 	char *name = TM_GetArg(action->arguments, 1);
@@ -516,6 +532,7 @@ bool ExecuteDialogTree(struct Game *game, struct TM_Action *action, enum TM_Acti
 			TM_Destroy(data->dialogs[i].timeline);
 		}
 		data->dialog_count = -1;
+		data->prev_selected = data->selected;
 	}
 	return false;
 }
@@ -571,6 +588,10 @@ void InterpretCommand(struct Game *game, struct GamestateResources* data, struct
 	} else if (strcmp(cmd, "GOTO!") == 0) {
 		PrintConsole(game, "GO TO");
 		TM_AddAction(timeline, GoTo, TM_AddToArgs(NULL, 2, data, arg), "GoTo");
+
+	} else if (strcmp(cmd, "CHECK") == 0) {
+		PrintConsole(game, "GO TO IF SAME");
+		TM_AddAction(timeline, GoToCheck, TM_AddToArgs(NULL, 2, data, arg), "GoToCheck");
 
 	} else if (strcmp(cmd, "EMOTI") == 0) {
 		TM_AddAction(timeline, SetEmoti, TM_AddToArgs(NULL, 2, data, arg), "SetEmoti");
@@ -636,6 +657,8 @@ void Gamestate_Start(struct Game *game, struct GamestateResources* data) {
 	data->dialogs[1] = (struct Dialog){.text = "lala2"};
 	data->dialogs[2] = (struct Dialog){.text = "lala3"};
 	data->dialogs[3] = (struct Dialog){.text = "lala4"};*/
+
+	data->notebook_enabled = game->config.debug;
 }
 
 void Gamestate_Stop(struct Game *game, struct GamestateResources* data) {

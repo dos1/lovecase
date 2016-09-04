@@ -4,7 +4,10 @@ FADEI
 SAYJK 0j014 It's pretty nice and warm today.
 EVIDE evi01 000 On a nice and warm day.
 TUTOR Press N anytime to check the notes you made.
+SAYJK 1j000 I should talk to somebody here.
+DELAY 1
 ACTOR blondie
+DELAY 1
 SAYJK 1j001 Good morning, lady!
 SAYAC 1b001 Oh, good morning!
 -----
@@ -72,7 +75,7 @@ GOTO! beach
 -----
 LABEL pervert
 ACTOR blank
-DELAY 2
+DELAY 1
 SAYJK 1j009 She sure knows something...
 SAYJK 1j010 ...but I don't think I'll make her talk now.
 SAYJK 1j011 Let's take a look for other witnesses.
@@ -80,4 +83,4 @@ SAYJK 1j011 Let's take a look for other witnesses.
 LABEL beach
 ACTOR blank
 FADEO
-CLOSE
+SCRIP 002-beach
