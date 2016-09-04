@@ -343,9 +343,6 @@ bool SetEmoti(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 
-		// temporarily disabled due to lack of graphics :P
-		return true;
-
 		char path[255];
 
 		snprintf(path, 255, "actors/%s-%s.png", data->cur_actor, name);

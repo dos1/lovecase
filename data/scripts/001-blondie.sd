@@ -17,10 +17,9 @@ DIALO 1j003 Nice weather it is, isn't it?
   CMD SAYAC 1b003 Just like you!
   CMD EMOTI default
   CMD SAYJK 1j006 Oh yes, this suit makes me pretty hot.
-  CMD EMOTI confused
+  CMD EMOTI worry
   CMD SAYJK 1j007 It's not really made for temperatures like this.
   CMD SAYJK 1j008 But, back to business.
-  CMD EMOTI worry
 DIALO 1j004 I have a business.
   CMD EMOTI worry
   CMD SAYAC 1b004 Uhm, what is it?
@@ -35,9 +34,8 @@ LABEL normal
 DIALO 1j012 Do you know anything about love?
   CMD EMOTI wink
   CMD SAYAC 1b006 Oooh, plenty!
-  CMD EMOTI default
   CMD SAYAC 1b007 Love is all around us!
-  CMD EMOTI wink
+  CMD EMOTI default
   CMD SAYAC 1b008 But... why are you asking?
 DIALO 1j013 Where can I find some love?
   CMD EMOTI angry
@@ -54,9 +52,9 @@ DIALO 1j015 Tell me something lovely.
   CMD SAYAC 1b011 Uhm...
   CMD EMOTI wink
   CMD SAYAC 1b012 Your coat is pretty lovely!
+  CMD EMOTI default
   CMD SAYJK 1j016 Is it? Hmm...
   CMD EVIDE 050 evi03 My coat is involved. 
-  CMD EMOTI default
   CMD SAYAC 1b013 Anything else?
 RUND!
 SAYJK 1j017 I'm on a case.
@@ -64,7 +62,7 @@ SAYJK 1j018 Thank you for your cooperation!
 EMOTI worry
 SAYAC 1b014 Uhm... you're welcome?
 SAYJK 1j019 Good bye!
-EMOTI smile
+EMOTI default
 SAYAC 1b015 Bye!
 ACTOR blank
 SAYJK 1j020 That was informative.
