@@ -44,6 +44,7 @@ struct CommonResources* CreateGameData(struct Game *game) {
 }
 
 void DestroyGameData(struct Game *game, struct CommonResources *resources) {
+	al_stop_sample_instance(game->data->music2);
 	al_stop_sample_instance(game->data->music);
 	free(resources);
 }
