@@ -28,10 +28,23 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	data->script = "000-intro";
 	data->evidence_len = 0;
 	data->evidence[data->evidence_len] = NULL;
+
+	data->sample = al_load_sample(GetDataFilePath(game, "menu.flac"));
+	data->music = al_create_sample_instance(data->sample);
+	al_attach_sample_instance_to_mixer(data->music, game->audio.music);
+	al_set_sample_instance_playmode(data->music, ALLEGRO_PLAYMODE_LOOP);
+
+
+	data->sample2 = al_load_sample(GetDataFilePath(game, "music.flac"));
+	data->music2 = al_create_sample_instance(data->sample2);
+	al_attach_sample_instance_to_mixer(data->music2, game->audio.music);
+	al_set_sample_instance_playmode(data->music2, ALLEGRO_PLAYMODE_LOOP);
+
 	return data;
 }
 
 void DestroyGameData(struct Game *game, struct CommonResources *resources) {
+	al_stop_sample_instance(game->data->music);
 	free(resources);
 }
 

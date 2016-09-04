@@ -244,10 +244,15 @@ void Gamestate_Start(struct Game *game, struct MenuResources* data) {
 	// playing music etc.
 	data->option = 0;
 	data->blink = 0;
+	al_stop_sample_instance(game->data->music2);
+	al_play_sample_instance(game->data->music);
+
 }
 
 void Gamestate_Stop(struct Game *game, struct MenuResources* data) {
 	// Called when gamestate gets stopped. Stop timers, music etc. here.
+	al_stop_sample_instance(game->data->music);
+	al_play_sample_instance(game->data->music2);
 }
 
 // Ignore those for now.

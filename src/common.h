@@ -7,6 +7,12 @@ struct CommonResources {
 	char *evidence[255];
 	int evidence_len;
 	int score;
+
+	ALLEGRO_SAMPLE *sample;
+	ALLEGRO_SAMPLE_INSTANCE *music;
+
+	ALLEGRO_SAMPLE *sample2;
+	ALLEGRO_SAMPLE_INSTANCE *music2;
 };
 
 struct CommonResources* CreateGameData(struct Game *game);

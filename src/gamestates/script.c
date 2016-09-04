@@ -81,6 +81,9 @@ struct GamestateResources {
 		ALLEGRO_BITMAP *cursor;
 
 		int prev_selected;
+
+		ALLEGRO_SAMPLE *sample_ev;
+		ALLEGRO_SAMPLE_INSTANCE *evidence;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -181,6 +184,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 			data->notebook_on = false;
 		} else {
 			UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
+			LoadGamestate(game, "menu");
+			StartGamestate(game, "menu");
 		}
 		// When there are no active gamestates, the engine will quit.
 	}
@@ -345,6 +350,8 @@ bool ShowEvidence(struct Game *game, struct TM_Action *action, enum TM_ActionSta
 
 		game->data->evidence[game->data->evidence_len] = data->status;
 		game->data->evidence_len++;
+
+		al_play_sample_instance(data->evidence);
 
 		data->speech_counter = 60*3;
 	}
@@ -662,6 +669,10 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->icon = al_load_bitmap(GetDataFilePath(game, GetGameName(game, "icons/%s.png")));
 	data->notebook = al_load_bitmap(GetDataFilePath(game, "notebook.png"));
 	data->cursor = al_load_bitmap(GetDataFilePath(game, "cursor.png"));
+
+	data->sample_ev = al_load_sample(GetDataFilePath(game, "evidence.flac"));
+	data->evidence = al_create_sample_instance(data->sample_ev);
+	al_attach_sample_instance_to_mixer(data->evidence, game->audio.fx);
 
 	data->timeline = TM_Init(game, "script");
 
