@@ -20,6 +20,7 @@
  */
 
 #include "../common.h"
+#include <stdio.h>
 #include <libsuperderpy.h>
 
 struct GamestateResources {
@@ -30,6 +31,8 @@ struct GamestateResources {
 		char *cur_scene;
 
 		char *skip_to;
+
+		bool stopped;
 
 		struct Character *scene;
 		ALLEGRO_BITMAP *actor;
@@ -48,13 +51,18 @@ struct GamestateResources {
 		char *speech;
 		char *status;
 
+		int fade;
+
 		ALLEGRO_FONT *font;
+
+		struct Timeline *timeline;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
+	TM_Process(data->timeline);
 
 }
 
@@ -63,6 +71,15 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	// Draw everything to the screen here.
 	//	al_draw_text(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, game->viewport.height / 2,
 	    //           ALLEGRO_ALIGN_CENTRE, "Nothing to see here, move along!");
+
+	if (data->scene) {
+		DrawCharacter(game, data->scene, al_map_rgb(255,255,255), 0);
+	}
+	if (data->actor) {
+		al_draw_bitmap(data->actor, 0, 0, 0);
+	}
+
+	al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 255-data->fade));
 
 	if (data->status) {
 		al_draw_text(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 5,
@@ -83,9 +100,258 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, ALLEGRO_EVENT *ev) {
 	// Called for each event in Allegro event queue.
 	// Here you can handle user input, expiring timers etc.
+	TM_HandleEvent(data->timeline, ev);
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
 		UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
 		// When there are no active gamestates, the engine will quit.
+	}
+	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_FULLSTOP)) {
+		data->speech_counter = 1;
+		TM_SkipDelay(data->timeline);
+	}
+}
+
+bool Speak(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *text = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		data->speech = text + 6;
+		data->speech_counter = 60*3;
+	}
+	if (state == TM_ACTIONSTATE_RUNNING) {
+		if (data->skip_to) { return true; }
+		data->speech_counter--;
+		return !data->speech_counter;
+	}
+	if (state == TM_ACTIONSTATE_DESTROY) {
+		data->speech = NULL;
+	}
+	return true;
+}
+
+bool ShowEvidence(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *text = TM_GetArg(action->arguments, 1) + 10;
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		char path[255];
+
+		snprintf(path, 255, "Noted: %s", text);
+		data->status = strdup(path);
+
+		data->speech_counter = 60*3;
+	}
+	if (state == TM_ACTIONSTATE_RUNNING) {
+		if (data->skip_to) { return true; }
+		data->speech_counter--;
+		return !data->speech_counter;
+	}
+	if (state == TM_ACTIONSTATE_DESTROY) {
+		data->status = NULL;
+	}
+	return true;
+}
+
+bool FadeIn(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_RUNNING) {
+		if (data->skip_to) { return true; }
+		data->fade+=2;
+		return data->fade >= 255;
+	}
+	if (state == TM_ACTIONSTATE_DESTROY) {
+		data->fade = 255;
+	}
+	return false;
+}
+bool FadeOut(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_RUNNING) {
+		if (data->skip_to) { return true; }
+		data->fade-=2;
+		return data->fade <= 0;
+	}
+	if (state == TM_ACTIONSTATE_DESTROY) {
+		data->fade = 0;
+	}
+	return false;
+}
+
+bool GoTo(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_START) {
+		PrintConsole(game, "jumping to label %s", name);
+		data->skip_to = name;
+	}
+	return true;
+}
+
+bool Label(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_START) {
+		if (!data->skip_to) return true;
+		if (strcmp(data->skip_to, name) == 0) {
+			PrintConsole(game, "jumped to label %s", name);
+			data->skip_to = NULL;
+		}
+	}
+	return true;
+}
+
+bool RunScript(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		game->data->script = name;
+		UnloadCurrentGamestate(game);
+		LoadGamestate(game, "dispatcher");
+		StartGamestate(game, "dispatcher");
+	}
+	return true;
+}
+
+bool SetActor(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+
+	if (state == TM_ACTIONSTATE_INIT) {
+		char path[255];
+
+		snprintf(path, 255, "actors/%s-%s.png", name, "default");
+		action->arguments = TM_AddToArgs(action->arguments, 1, al_load_bitmap(GetDataFilePath(game, path)));
+	}
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		ALLEGRO_BITMAP *bitmap = TM_GetArg(action->arguments, 2);
+
+		PrintConsole(game, "Setting up actor %s", name);
+		if (data->actor) {
+			al_destroy_bitmap(data->actor);
+		}
+		data->cur_emoti = "default";
+		data->cur_actor = strdup(name);
+		data->actor = bitmap;
+	}
+	return true;
+}
+
+bool SetEmoti(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+
+		// temporarily disabled due to lack of graphics :P
+		return true;
+
+		char path[255];
+
+		snprintf(path, 255, "actors/%s-%s.png", data->cur_actor, name);
+		ALLEGRO_BITMAP *bitmap = al_load_bitmap(GetDataFilePath(game, path));
+
+		PrintConsole(game, "Setting up emoti %s for actor %s", name, data->cur_actor);
+		if (data->actor) {
+			al_destroy_bitmap(data->actor);
+		}
+		data->cur_emoti = strdup(name);
+		data->actor = bitmap;
+	}
+	return true;
+}
+
+bool SetScene(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	char *name = TM_GetArg(action->arguments, 1);
+	if (state == TM_ACTIONSTATE_INIT) {
+		struct Character *character = CreateCharacter(game, name);
+		RegisterSpritesheet(game, character, "scene");
+		LoadSpritesheets(game, character);
+		SelectSpritesheet(game, character, "scene");
+		SetCharacterPosition(game, character, 0, 0, 0);
+		action->arguments = TM_AddToArgs(action->arguments, 1, character);
+	}
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		PrintConsole(game, "Setting up scene %s", name);
+		if (data->scene) {
+			DestroyCharacter(game, data->scene);
+		}
+		data->scene = TM_GetArg(action->arguments, 2);
+	}
+	return true;
+}
+
+bool ExitGame(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		UnloadCurrentGamestate(game);
+	}
+	return true;
+}
+
+void InterpretCommand(struct Game *game, struct GamestateResources* data, char* buf) {
+	char *cmd = strdup(buf);
+	if ((!cmd[0]) || (cmd[0]=='-') || (cmd[0] == '\n')) {
+		return;
+	}
+	cmd[5] = '\0';
+	char *arg = NULL;
+	if (strlen(buf) > 6) {
+		arg = cmd + 6;
+		arg[strlen(arg)-1] = 0;
+	}
+	if (strcmp(cmd, "ACTOR") == 0) {
+		TM_AddAction(data->timeline, SetActor, TM_AddToArgs(NULL, 2, data, arg), "SetActor");
+	} else if (strcmp(cmd, "SCENE") == 0) {
+		TM_AddAction(data->timeline, SetScene, TM_AddToArgs(NULL, 2, data, arg), "SetScene");
+	} else if (strcmp(cmd, "DELAY") == 0) {
+		TM_AddDelay(data->timeline, strtoumax(arg, NULL, 10)*1000);
+	} else if (strcmp(cmd, "SAYAC") == 0) {
+		PrintConsole(game, "say actor");
+		TM_AddAction(data->timeline, Speak, TM_AddToArgs(NULL, 2, data, arg), "Speak");
+	} else if (strcmp(cmd, "SAYJK") == 0) {
+		PrintConsole(game, "say jack");
+		TM_AddAction(data->timeline, Speak, TM_AddToArgs(NULL, 2, data, arg), "Speak");
+	} else if (strcmp(cmd, "FADEI") == 0) {
+		TM_AddAction(data->timeline, FadeIn, TM_AddToArgs(NULL, 1, data), "FadeIn");
+	} else if (strcmp(cmd, "FADEO") == 0) {
+		TM_AddAction(data->timeline, FadeOut, TM_AddToArgs(NULL, 1, data), "FadeOut");
+	} else if (strcmp(cmd, "EVIDE") == 0) {
+		PrintConsole(game, "evidence");
+		TM_AddAction(data->timeline, ShowEvidence, TM_AddToArgs(NULL, 2, data, arg), "ShowEvidence");
+	} else if (strcmp(cmd, "DIALO") == 0) {
+		PrintConsole(game, "dialog tree");
+	} else if (strcmp(cmd, "  CMD") == 0) {
+		PrintConsole(game, "  -- subcommand");
+	} else if (strcmp(cmd, "RUND!") == 0) {
+		PrintConsole(game, "RUN dialog tree!");
+	} else if (strcmp(cmd, "TUTOR") == 0) {
+		PrintConsole(game, "tutorial block");
+	} else if (strcmp(cmd, "GOTO!") == 0) {
+		PrintConsole(game, "GO TO");
+		TM_AddAction(data->timeline, GoTo, TM_AddToArgs(NULL, 2, data, arg), "GoTo");
+
+	} else if (strcmp(cmd, "EMOTI") == 0) {
+		TM_AddAction(data->timeline, SetEmoti, TM_AddToArgs(NULL, 2, data, arg), "SetEmoti");
+	} else if (strcmp(cmd, "LABEL") == 0) {
+		PrintConsole(game, "label achieved");
+		TM_AddAction(data->timeline, Label, TM_AddToArgs(NULL, 2, data, arg), "Label");
+
+	} else if (strcmp(cmd, "SCRIP") == 0) {
+		PrintConsole(game, "switch to script");
+		TM_AddAction(data->timeline, RunScript, TM_AddToArgs(NULL, 2, data, arg), "Script");
+	} else if (strcmp(cmd, "CLOSE") == 0) {
+		PrintConsole(game, "close the game");
+		TM_AddAction(data->timeline, ExitGame, TM_AddToArgs(NULL, 1, data), "Exit");
+
+	} else {
+		PrintConsole(game, "UNRECOGNIZED COMMAND %s", buf);
 	}
 }
 
@@ -96,7 +362,17 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 
 	data->font = al_create_builtin_font();
 
-	data->script_file = al_fopen(game->data->script, "r");
+	char path[255];
+	snprintf(path, 255, "scripts/%s.sd", game->data->script);
+	data->script_file = al_fopen(GetDataFilePath(game, path), "r");
+
+	data->timeline = TM_Init(game, "script");
+
+	do {
+		char buf[255];
+		al_fgets(data->script_file, buf, 255);
+		InterpretCommand(game, data, buf);
+	}	while (!al_feof(data->script_file));
 
 	progress(game); // report that we progressed with the loading, so the engine can draw a progress bar
 	return data;
@@ -107,6 +383,7 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	// Good place for freeing all allocated memory and resources.
 	al_destroy_font(data->font);
 	al_fclose(data->script_file);
+	TM_Destroy(data->timeline);
 	free(data);
 }
 

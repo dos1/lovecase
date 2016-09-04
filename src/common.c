@@ -24,7 +24,7 @@
 
 struct CommonResources* CreateGameData(struct Game *game) {
 	struct CommonResources *data = calloc(1, sizeof(struct CommonResources));
-	data->script = "000-intro.sd";
+	data->script = "000-intro";
 	data->evidence_len = 0;
 	data->evidence[data->evidence_len] = NULL;
 	return data;

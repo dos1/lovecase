@@ -1,37 +1,40 @@
 SCENE park
+ACTOR blank
 FADEI
 SAYJK 0j014 It's pretty nice and warm today.
 EVIDE evi01 000 Nice and warm.
-TUROR TIP: Press N to check the notes you made.
+TUTOR TIP: Press N to check the notes you made.
 ACTOR blondie
 SAYJK 1j001 Good morning, lady!
 SAYAC 1b001 Oh, good morning!
 -----
 DIALO 1j002 Are you available for a short talk?
   CMD SAYAC 1b001 Sure!
+  CMD GOTO! normal
 DIALO 1j003 Nice weather it is, isn't it?
   CMD SAYAC 1b002 Yes, it is! And it's pretty hot!
   CMD EMOTI wink
   CMD SAYAC 1b003 Just like you!
   CMD EMOTI default
-  CMD SETVA hot
+  CMD GOTO! hot
 DIALO 1j004 I have a business.
   CMD EMOTI worry
   CMD SAYAC 1b004 Uhm, what is it?
+  CMD GOTO! normal
 DIALO 1j005 I want to know what love is.
   CMD EMOTI angry
   CMD SAYAC 1b005 Go away, you pervert!
   CMD GOTO! pervert
 RUND!
 -----
-IFVAR hot
-  CMD SAYJK 1j006 Oh yes, this suit makes me pretty hot.
-  CMD EMOTI confused
-  CMD SAYJK 1j007 It's not really made for temperatures like this.
-  CMD SAYJK 1j008 But, back to business.
-  CMD EMOTI worry
-ENDME
+LABEL hot
+SAYJK 1j006 Oh yes, this suit makes me pretty hot.
+EMOTI confused
+SAYJK 1j007 It's not really made for temperatures like this.
+SAYJK 1j008 But, back to business.
+EMOTI worry
 -----
+LABEL normal
 DIALO 1j012 Do you know anything about love?
   CMD EMOTI wink
   CMD SAYAC 1b006 Oooh, plenty!
@@ -83,4 +86,4 @@ LABEL beach
 -----
 ACTOR blank
 FADEO
-ENDME
+CLOSE

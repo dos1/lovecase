@@ -1,6 +1,6 @@
 SCENE blank
 ACTOR blank
-DELAY 2
+FADEI
 SAYAC 0j001 My name is Detective Jack.
 SAYAC 0j002 I'm on a case...
 SAYAC 0j003 ..but not on a regular one.
@@ -19,4 +19,4 @@ SAYAC 0j011 because I'm the best detective in town.
 SAYAC 0j012 I'm Detective Jack
 SAYAC 0j013 and I'm going to find the love.
 FADEO
-SCRIP 001-blondie.sd
+SCRIP 001-blondie
