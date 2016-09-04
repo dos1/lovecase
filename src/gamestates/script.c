@@ -257,7 +257,7 @@ bool Speak(struct Game *game, struct TM_Action *action, enum TM_ActionState stat
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 		data->speech = text + 6;
-		data->speech_counter = 60*3;
+		data->speech_counter = 60*4;
 		data->speech_jack = jack;
 	}
 	if (state == TM_ACTIONSTATE_RUNNING) {
@@ -302,14 +302,45 @@ bool Tutorial(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	return true;
 }
 
+bool NotebookOverview(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
+	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
+	if (state == TM_ACTIONSTATE_START) {
+		if (data->skip_to) { return true; }
+		data->notebook_on = true;
+		char path[255];
+
+		snprintf(path, 255, "SCORE: %d", game->data->score);
+
+		game->data->evidence[game->data->evidence_len] = strdup(path);
+		game->data->evidence_len++;
+
+	}
+	if (state == TM_ACTIONSTATE_RUNNING) {
+		if (data->skip_to) { return true; }
+		return !data->notebook_on;
+	}
+	return true;
+}
+
 bool ShowEvidence(struct Game *game, struct TM_Action *action, enum TM_ActionState state) {
 	struct GamestateResources *data = TM_GetArg(action->arguments, 0);
 	char *text = TM_GetArg(action->arguments, 1) + 10;
+	char *s = TM_GetArg(action->arguments, 1) + 6;
+
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
+
+		char score[4];
+		score[0] = s[0];
+		score[1] = s[1];
+		score[2] = s[2];
+		score[3] = 0;
+
+		game->data->score += strtoumax(score, NULL, 10);
+
 		char path[255];
 
-		snprintf(path, 255, "Noted: %s", text);
+		snprintf(path, 255, "%s", text);
 		data->status = strdup(path);
 
 		game->data->evidence[game->data->evidence_len] = data->status;
@@ -478,6 +509,10 @@ bool ExitGame(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 		UnloadCurrentGamestate(game);
+		DestroyGameData(game, game->data);
+		game->data = CreateGameData(game);
+		LoadGamestate(game, "menu");
+		StartGamestate(game, "menu");
 	}
 	return true;
 }
@@ -602,6 +637,9 @@ void InterpretCommand(struct Game *game, struct GamestateResources* data, struct
 	} else if (strcmp(cmd, "SCRIP") == 0) {
 		PrintConsole(game, "switch to script");
 		TM_AddAction(timeline, RunScript, TM_AddToArgs(NULL, 2, data, arg), "Script");
+	}  else if (strcmp(cmd, "NOTES") == 0) {
+		PrintConsole(game, "sum up the game");
+		TM_AddAction(timeline, NotebookOverview, TM_AddToArgs(NULL, 1, data), "NotebookOverview");
 	} else if (strcmp(cmd, "CLOSE") == 0) {
 		PrintConsole(game, "close the game");
 		TM_AddAction(timeline, ExitGame, TM_AddToArgs(NULL, 1, data), "Exit");

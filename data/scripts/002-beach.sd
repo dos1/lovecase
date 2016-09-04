@@ -18,7 +18,7 @@ SAYAC 2b005 Oh, c'mon, lighten up!
 EMOTI default
 SAYAC 2b006 It's such a lovely day!
 SAYJK 2j006 Aha!
-EVIDE evi10 010 Suspect: day.
+EVIDE evi10 010 lovely day
 EMOTI surprised
 SAYAC 2b007 You wanted to ask me something?
 EMOTI default
@@ -29,7 +29,7 @@ DIALO 2j007 What is love?
   CMD EMOTI default
   CMD SAYAC 2b009 Is that what a detective should be looking for though?
   CMD SAYJK 2j011 Well, yes, it is.
-  CMD EVIDE evi11 100 Suspect: methylethylamine
+  CMD EVIDE evi11 100 methylethylamine
   CMD EMOTI smirk
   CMD SAYAC 2b010 You're weird.
   CMD EMOTI default
@@ -53,7 +53,7 @@ DIALO 2j009 Love. Tell me about it.
   CMD SAYAC 2b019 I think love is about paid Netflix account!
   CMD EMOTI default
   CMD SAYAC 2b020 *chuckles*
-  CMD EVIDE evi013 150 Netflix
+  CMD EVIDE evi13 150 Netflix
 DIALO 2j010 Give me love.
   CMD EMOTI smirk
   CMD SAYAC 2b021 Give me L!
@@ -64,7 +64,7 @@ DIALO 2j010 Give me love.
   CMD EMOTI default
   CMD SAYAC 2b024 Give me E!
   CMD SAYAC 2b025 *chuckles*
-  CMD EVIDE evi014 Fragmented into letters?
+  CMD EVIDE evi14 050 fragmented into letters?
 RUND!
 -----
 DIALO 2j007 What is love?
@@ -74,7 +74,7 @@ DIALO 2j007 What is love?
   CMD EMOTI default
   CMD SAYAC 2b009 Is that what a detective should be looking for though?
   CMD SAYJK 2j011 Well, yes, it is.
-  CMD EVIDE evi11 100 Suspect: methylethylamine
+  CMD EVIDE evi11 100 methylethylamine
   CMD EMOTI smirk
   CMD SAYAC 2b010 You're weird.
   CMD EMOTI default
@@ -91,7 +91,7 @@ DIALO 2j009 Love. Tell me about it.
   CMD CHECK twice
   CMD EMOTI smirk
   CMD SAYAC 2b015 Oh, my love, that's not how you get girls!
-  CMD EVIDE evi012 050 I'm love???
+  CMD EVIDE evi12 050 I'm love???
   CMD EMOTI default
   CMD SAYAC 2b016 Just look around. All these people, all these couples!
   CMD SAYAC 2b017 Playing, spending time with each other!
@@ -100,7 +100,7 @@ DIALO 2j009 Love. Tell me about it.
   CMD SAYAC 2b019 I think love is about paid Netflix account!
   CMD EMOTI default
   CMD SAYAC 2b020 *chuckles*
-  CMD EVIDE evi013 150 Netflix
+  CMD EVIDE evi13 150 Netflix
 DIALO 2j010 Give me love.
   CMD CHECK twice
   CMD EMOTI smirk
@@ -112,7 +112,7 @@ DIALO 2j010 Give me love.
   CMD EMOTI default
   CMD SAYAC 2b024 Give me E!
   CMD SAYAC 2b025 *chuckles*
-  CMD EVIDE evi014 Fragmented into letters?
+  CMD EVIDE evi14 050 fragmented into letters?
 RUND!
 GOTO! end
 -----
@@ -128,4 +128,4 @@ EMOTI default
 SAYAC 2b026 Have a nice day, Mr. Detective!
 -----
 FADEO
-CLOSE
+SCRIP 003-molo

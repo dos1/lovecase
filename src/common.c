@@ -20,6 +20,7 @@
  */
 
 #include "common.h"
+#include <stdio.h>
 #include <libsuperderpy.h>
 
 struct CommonResources* CreateGameData(struct Game *game) {

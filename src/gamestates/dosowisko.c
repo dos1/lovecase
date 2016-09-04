@@ -23,7 +23,7 @@
 #include <math.h>
 #include <libsuperderpy.h>
 
-#define NEXT_GAMESTATE "dispatcher"
+#define NEXT_GAMESTATE "menu"
 #define SKIP_GAMESTATE NEXT_GAMESTATE
 
 struct GamestateResources {

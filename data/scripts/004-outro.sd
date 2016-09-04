@@ -1,0 +1,14 @@
+SCENE alley
+ACTOR blank
+FADEI
+SAYJK 4j001 And so the day ends...
+SAYJK 4j002 I'm still not sure what or where the love is.
+SAYJK 4j003 However, I've got some clues.
+SAYJK 4j004 One day I will find out.
+SAYJK 4j005 I will close this case!
+SAYJK 4j006 One day...
+DELAY 1
+NOTES
+DELAY 1
+FADEO
+CLOSE

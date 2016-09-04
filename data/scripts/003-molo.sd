@@ -1,0 +1,87 @@
+SCENE molo
+ACTOR blank
+FADEI
+SAYJK 3j001 What a wonderful evening.
+SAYJK 3j002 I hope I can find someone that...
+ACTOR gurl
+SAYAC 3g001 Can you feel the love tonight?
+SAYJK 3j003 Oh! Good evening!
+SAYJK 3j004 Can I take you a little time?
+EMOTI intrigued
+SAYAC 3g002 Yes, please!
+-----
+DIALO 3j100 I want to know what love is.
+  CMD EMOTI happy
+  CMD SAYAC 3g100 Oh, it's Foreigner!
+  CMD SAYAC 3g101 You like them?
+  CMD SAYJK 3j110 I don't think they belong here, ma'am.
+  CMD EMOTI angry
+  CMD SAYAC 3g102 Hey, they're not that bad!
+  CMD EVIDE evi40 100 foreigners
+DIALO 3j101 Is there anything you know about love?
+  CMD EMOTI happy
+  CMD SAYAC 2g199 Love is in the air!
+  CMD EVIDE evi51 050 air conditioning
+  CMD EMOTI default
+  CMD SAYAC 3g200 Also, it loves to complicate our lifes.
+  CMD EVIDE evi50 050 troublemaker
+DIALO 3j102 What is love?
+  CMD EMOTI happy
+  CMD SAYAC 3g300 Baby don't hurt me!
+  CMD EMOTI intrigued
+  CMD SAYJK 3j300 I don't intend to!
+  CMD EVIDE evi60 150 hurts?
+DIALO 3j103 You look... lovely.
+  CMD EMOTI red
+  CMD SAYAC 3g400 ...
+  CMD SAYAC 3g401 Thank you!
+  CMD EVIDE evi70 050 makes people red
+RUND!
+EMOTI default
+-----
+DIALO 3j100 I want to know what love is.
+  CMD CHECK double
+  CMD EMOTI happy
+  CMD SAYAC 3g100 Oh, it's Foreigner!
+  CMD SAYAC 3g101 You like them?
+  CMD SAYJK 3j110 I don't think they belong here, ma'am.
+  CMD EMOTI angry
+  CMD SAYAC 3g102 Hey, they're not that bad!
+  CMD EVIDE evi40 100 foreigners
+DIALO 3j101 Is there anything you know about love?
+  CMD CHECK double
+  CMD EMOTI happy
+  CMD SAYAC 2g199 Love is in the air!
+  CMD EVIDE evi51 050 air conditioning
+  CMD EMOTI default
+  CMD SAYAC 3g200 Also, it loves to complicate our lifes.
+  CMD EVIDE evi50 050 troublemaker
+DIALO 3j102 What is love?
+  CMD CHECK double
+  CMD EMOTI happy
+  CMD SAYAC 3g300 Baby don't hurt me!
+  CMD EMOTI intrigued
+  CMD SAYJK 3j300 I don't intend to!
+  CMD EVIDE evi60 150 hurts?
+DIALO 3j103 You look... lovely.
+  CMD CHECK double
+  CMD EMOTI red
+  CMD SAYAC 3g400 ...
+  CMD SAYAC 3g401 Thank you!
+  CMD EVIDE evi70 050 makes people red
+RUND!
+EMOTI default
+GOTO! end
+-----
+LABEL double
+EMOTI default
+SAYAC 3g800 You already asked that.
+SAYJK 3j800 Sorry, my memory is poor.
+-----
+LABEL end
+SAYAC 3g900 Would love to chat more, but got to go!
+EVIDE evi30 050 chats
+EMOTI happy
+SAYAC 3g901 Bye!
+FADEO
+SCRIP 004-outro

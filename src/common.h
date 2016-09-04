@@ -6,6 +6,7 @@ struct CommonResources {
 	char *script;
 	char *evidence[255];
 	int evidence_len;
+	int score;
 };
 
 struct CommonResources* CreateGameData(struct Game *game);
