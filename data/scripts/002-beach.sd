@@ -43,7 +43,7 @@ DIALO 2j008 What are you doing here?
   CMD SAYAC 2b014 As you wish!
 DIALO 2j009 Love. Tell me about it.
   CMD EMOTI smirk
-  CMD SAYAC 2b015 Oh, my love, that's not how you get girls!
+  CMD SAYAC 2b015 Oh, my love, that's not how you get ladies!
   CMD EVIDE evi012 050 I'm love???
   CMD EMOTI default
   CMD SAYAC 2b016 Just look around. All these people, all these couples!
