@@ -34,3 +34,66 @@ void DestroyGameData(struct Game *game, struct CommonResources *resources) {
 	free(resources);
 }
 
+int DrawWrappedText(ALLEGRO_FONT *af,char atext[1024],ALLEGRO_COLOR fc, int x1, int y1, int width, int flags,bool draw)
+{
+	   char stext[1024]; // Copy of the passed text.
+		 char * pch; // A pointer to each word.
+		 char word[255]; // A string containing the word (for convienence)
+		 char breakchar[12]; // Contains the break line character "\n "
+		 char Lines[40][1024]; // A lovely array of strings to hold all the lines (40 max atm)
+		 char TempLine[1024]; // Holds the string data of the current line only.
+		 int CurrentLine = 0; // Counts which line we are currently using.
+		 int q; // Used for loops
+
+		 // Setup our strings
+		 strcpy(stext,atext);
+		 strcpy(breakchar,"\n ");
+		 strcpy(TempLine,"");
+		 for(q = 0;q < 40;q+=1)
+		 {
+			    sprintf(Lines[q],"");
+		 }
+		 //-------------------- Code Begins
+
+		 pch = strtok (stext," ");                               // Get the first word.
+		 do
+		 {
+			    strcpy(word,"");                                  // Truncate the string, to ensure there's no crazy stuff in there from memory.
+					sprintf(word,"%s ",pch);
+					sprintf(TempLine,"%s%s",TempLine,word);             // Append the word to the end of TempLine
+					// This code checks for the new line character.
+					if(strcmp(word,breakchar) == 0)
+					{
+						    CurrentLine+=1;                                 // Move down a Line
+								strcpy(TempLine,"");                            // Clear the tempstring
+					}
+					else
+					{
+						    if(al_get_text_width(af,TempLine) >= (width))   // Check if text is larger than the area.
+								{
+									    strcpy(TempLine,word);                      // clear the templine and add the word to it.
+											CurrentLine+=1;                             // Move to the next line.
+								}
+								if(CurrentLine < 40)
+								{
+									    strcat(Lines[CurrentLine],word);                // Append the word to whatever line we are currently on.
+								}
+					}
+					pch = strtok (NULL, " ");                           // Get the next word.
+		 }while (pch != NULL);
+		 // ---------------------------------- Time to draw.
+		 if(draw == true)                                       //Check whether we are actually drawing the text.
+		 {
+			    for(q = 0;q <=CurrentLine;q+=1)                     // Move through each line and draw according to the passed flags.
+					{
+						    if(flags == ALLEGRO_ALIGN_LEFT)
+									   al_draw_text(af,fc, x1, y1 + (q * al_get_font_line_height(af)), ALLEGRO_ALIGN_LEFT,Lines[q]);
+								if(flags == ALLEGRO_ALIGN_CENTRE)
+									   al_draw_text(af,fc, x1 + (width/2), y1 + (q * al_get_font_line_height(af)), ALLEGRO_ALIGN_CENTRE,Lines[q]);
+								if(flags == ALLEGRO_ALIGN_RIGHT)
+									   al_draw_text(af,fc, x1 + width, y1 + (q * al_get_font_line_height(af)), ALLEGRO_ALIGN_RIGHT,Lines[q]);
+					}
+
+		 }
+		 return((CurrentLine+1) * al_get_font_line_height(af));  // Return the actual height of the text in pixels.
+}

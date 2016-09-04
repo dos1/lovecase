@@ -3,7 +3,7 @@ ACTOR blank
 FADEI
 SAYJK 0j014 It's pretty nice and warm today.
 EVIDE evi01 000 Nice and warm.
-TUTOR TIP: Press N to check the notes you made.
+TUTOR Press N anytime to check the notes you made.
 ACTOR blondie
 SAYJK 1j001 Good morning, lady!
 SAYAC 1b001 Oh, good morning!
@@ -16,7 +16,11 @@ DIALO 1j003 Nice weather it is, isn't it?
   CMD EMOTI wink
   CMD SAYAC 1b003 Just like you!
   CMD EMOTI default
-  CMD GOTO! hot
+  CMD SAYJK 1j006 Oh yes, this suit makes me pretty hot.
+  CMD EMOTI confused
+  CMD SAYJK 1j007 It's not really made for temperatures like this.
+  CMD SAYJK 1j008 But, back to business.
+  CMD EMOTI worry
 DIALO 1j004 I have a business.
   CMD EMOTI worry
   CMD SAYAC 1b004 Uhm, what is it?
@@ -26,13 +30,6 @@ DIALO 1j005 I want to know what love is.
   CMD SAYAC 1b005 Go away, you pervert!
   CMD GOTO! pervert
 RUND!
------
-LABEL hot
-SAYJK 1j006 Oh yes, this suit makes me pretty hot.
-EMOTI confused
-SAYJK 1j007 It's not really made for temperatures like this.
-SAYJK 1j008 But, back to business.
-EMOTI worry
 -----
 LABEL normal
 DIALO 1j012 Do you know anything about love?
@@ -75,15 +72,13 @@ SAYJK 1j021 Let's take a look somewhere else.
 GOTO! beach
 -----
 LABEL pervert
------
 ACTOR blank
 DELAY 2
-SAYJK 1j009 She sure knows something
-SAYJK 1j010 but I don't think I'll make her talk now.
+SAYJK 1j009 She sure knows something...
+SAYJK 1j010 ...but I don't think I'll make her talk now.
 SAYJK 1j011 Let's take a look for other witnesses.
 -----
 LABEL beach
------
 ACTOR blank
 FADEO
 CLOSE

@@ -10,3 +10,4 @@ struct CommonResources {
 
 struct CommonResources* CreateGameData(struct Game *game);
 void DestroyGameData(struct Game *game, struct CommonResources *resources);
+int DrawWrappedText(ALLEGRO_FONT *af,char atext[1024],ALLEGRO_COLOR fc, int x1, int y1, int width, int flags,bool draw);
