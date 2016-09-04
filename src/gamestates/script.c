@@ -38,6 +38,8 @@ struct GamestateResources {
 		int dialog_highlight;
 		bool speech_jack;
 
+		bool notebook_enabled;
+
 		char *tut_text;
 
 		int selected;
@@ -70,13 +72,17 @@ struct GamestateResources {
 
 		ALLEGRO_BITMAP *icon;
 		ALLEGRO_BITMAP *notebook;
+
+		bool notebook_on;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
 
 void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	// Called 60 times per second. Here you should do all your game logic.
-	TM_Process(data->timeline);
+	if (!data->notebook_on) {
+		TM_Process(data->timeline);
+	}
 	/*for (int i=0; i<data->dialog_count; i++) {
 		TM_Process(data->dialogs[i].timeline);
 	}*/
@@ -101,6 +107,20 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 
 	al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 255-data->fade));
 
+	if (data->notebook_on) {
+		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
+		al_draw_bitmap(data->notebook, 0, 0, 0);
+		al_draw_filled_rectangle(0, 0, 320, 20 + (game->data->evidence_len)*10, al_map_rgba(0, 0, 0, 192));
+		for (int i=0; i<game->data->evidence_len; i++) {
+			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 5, (game->data->evidence_len-i)*10,
+			    ALLEGRO_ALIGN_LEFT, game->data->evidence[game->data->evidence_len-i-1]);
+		}
+		al_draw_filled_rectangle(0, 160, 320, 180, al_map_rgba(0, 0, 0, 128));
+		DrawTextWithShadow(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
+		    ALLEGRO_ALIGN_CENTRE, "SPACE to go back");
+		return;
+	}
+
 	if (data->tut_text) {
 		al_draw_bitmap(data->notebook, 0, 0, 0);
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
@@ -113,7 +133,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 		al_draw_line(0, 160, 320, 160, al_map_rgb(255,255,255), 3);
 		al_draw_filled_rectangle(0, 160, 320, 180, al_map_rgba(0, 0, 0, 192));
 
-		al_draw_text(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
+		DrawTextWithShadow(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
 		    ALLEGRO_ALIGN_CENTRE, data->status);
 	}
 	if (data->speech) {
@@ -143,7 +163,15 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		TM_HandleEvent(data->dialogs[i].timeline, ev);
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
-		UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
+		if (data->notebook_on) {
+			data->notebook_on = false;
+		} else {
+			UnloadCurrentGamestate(game); // mark this gamestate to be stopped and unloaded
+		}
+		// When there are no active gamestates, the engine will quit.
+	}
+	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_SPACE)) {
+		  data->notebook_on = false;
 		// When there are no active gamestates, the engine will quit.
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_FULLSTOP)) {
@@ -152,6 +180,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		TM_SkipDelay(data->timeline);
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_N)) {
+		data->notebook_on = data->notebook_enabled;
 		data->tut_text = NULL;
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_1)) {
@@ -224,6 +253,7 @@ bool Tutorial(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 		data->tut_text = text;
+		data->notebook_enabled = true;
 	}
 	if (state == TM_ACTIONSTATE_RUNNING) {
 		if (data->skip_to) { return true; }
@@ -241,6 +271,9 @@ bool ShowEvidence(struct Game *game, struct TM_Action *action, enum TM_ActionSta
 
 		snprintf(path, 255, "Noted: %s", text);
 		data->status = strdup(path);
+
+		game->data->evidence[game->data->evidence_len] = data->status;
+		game->data->evidence_len++;
 
 		data->speech_counter = 60*3;
 	}
