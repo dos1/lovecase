@@ -2,7 +2,7 @@ SCENE park
 ACTOR blank
 FADEI
 SAYJK 0j014 It's pretty nice and warm today.
-EVIDE evi01 000 Nice and warm.
+EVIDE evi01 000 On a nice and warm day.
 TUTOR Press N anytime to check the notes you made.
 ACTOR blondie
 SAYJK 1j001 Good morning, lady!
@@ -36,6 +36,7 @@ DIALO 1j012 Do you know anything about love?
   CMD SAYAC 1b006 Oooh, plenty!
   CMD SAYAC 1b007 Love is all around us!
   CMD EMOTI default
+  CMD EVIDE evi04 010 It's around.
   CMD SAYAC 1b008 But... why are you asking?
 DIALO 1j013 Where can I find some love?
   CMD EMOTI angry
@@ -54,7 +55,7 @@ DIALO 1j015 Tell me something lovely.
   CMD SAYAC 1b012 Your coat is pretty lovely!
   CMD EMOTI default
   CMD SAYJK 1j016 Is it? Hmm...
-  CMD EVIDE 050 evi03 My coat is involved. 
+  CMD EVIDE 100 evi03 My coat is involved. 
   CMD SAYAC 1b013 Anything else?
 RUND!
 SAYJK 1j017 I'm on a case.

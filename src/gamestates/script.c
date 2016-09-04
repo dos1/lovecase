@@ -69,6 +69,7 @@ struct GamestateResources {
 		struct Timeline *timeline;
 
 		ALLEGRO_BITMAP *icon;
+		ALLEGRO_BITMAP *notebook;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -79,6 +80,9 @@ void Gamestate_Logic(struct Game *game, struct GamestateResources* data) {
 	/*for (int i=0; i<data->dialog_count; i++) {
 		TM_Process(data->dialogs[i].timeline);
 	}*/
+	if (data->scene) {
+		AnimateCharacter(game, data->scene, 1);
+	}
 
 }
 
@@ -98,16 +102,18 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 255-data->fade));
 
 	if (data->tut_text) {
+		al_draw_bitmap(data->notebook, 0, 0, 0);
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
 		    DrawWrappedText(data->font, data->tut_text, al_map_rgb(255,255,255), 5,  game->viewport.height / 2,
 				    310, ALLEGRO_ALIGN_CENTRE, true);
 	}
 
 	if (data->status) {
-		al_draw_line(0, 20, 320, 20, al_map_rgb(255,255,255), 3);
-		al_draw_filled_rectangle(0, 0, 320, 20, al_map_rgba(0, 0, 0, 192));
+		al_draw_bitmap(data->notebook, 0, 0, 0);
+		al_draw_line(0, 160, 320, 160, al_map_rgb(255,255,255), 3);
+		al_draw_filled_rectangle(0, 160, 320, 180, al_map_rgba(0, 0, 0, 192));
 
-		al_draw_text(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 5,
+		al_draw_text(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
 		    ALLEGRO_ALIGN_CENTRE, data->status);
 	}
 	if (data->speech) {
@@ -524,6 +530,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	snprintf(path, 255, "scripts/%s.sd", game->data->script);
 	data->script_file = al_fopen(GetDataFilePath(game, path), "r");
 	data->icon = al_load_bitmap(GetDataFilePath(game, GetGameName(game, "icons/%s.png")));
+	data->notebook = al_load_bitmap(GetDataFilePath(game, "notebook.png"));
 
 	data->timeline = TM_Init(game, "script");
 
