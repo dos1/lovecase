@@ -30,6 +30,9 @@ struct MenuResources {
 		ALLEGRO_FONT *font;
 		int option, blink;
 		ALLEGRO_BITMAP *bg;
+
+		ALLEGRO_SAMPLE *sample;
+		ALLEGRO_SAMPLE_INSTANCE *music;
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -112,9 +115,10 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 			switch (data->option) {
 				case 0:
 					UnloadAllGamestates(game);
+					DestroyGameData(game, game->data);
+					game->data = CreateGameData(game);
 					LoadGamestate(game, "dispatcher");
 					StartGamestate(game, "dispatcher");
-					//StartGame(game, !game->data->logo);
 					break;
 				case 1:
 					data->option = 4;
@@ -229,6 +233,11 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 
 	data->bg = al_load_bitmap(GetDataFilePath(game, "menu.png"));
 
+	data->sample = al_load_sample(GetDataFilePath(game, "menu.flac"));
+	data->music = al_create_sample_instance(data->sample);
+	al_attach_sample_instance_to_mixer(data->music, game->audio.music);
+	al_set_sample_instance_playmode(data->music, ALLEGRO_PLAYMODE_LOOP);
+
 	return data;
 }
 
@@ -244,15 +253,18 @@ void Gamestate_Start(struct Game *game, struct MenuResources* data) {
 	// playing music etc.
 	data->option = 0;
 	data->blink = 0;
-	al_stop_sample_instance(game->data->music2);
-	al_play_sample_instance(game->data->music);
-
+	if (game->data->music) {
+		al_stop_sample_instance(game->data->music);
+	}
+	al_play_sample_instance(data->music);
 }
 
 void Gamestate_Stop(struct Game *game, struct MenuResources* data) {
 	// Called when gamestate gets stopped. Stop timers, music etc. here.
-	al_stop_sample_instance(game->data->music);
-	al_play_sample_instance(game->data->music2);
+	al_stop_sample_instance(data->music);
+	if (game->data->music) {
+		al_play_sample_instance(game->data->music);
+	}
 }
 
 // Ignore those for now.

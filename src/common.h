@@ -11,8 +11,7 @@ struct CommonResources {
 	ALLEGRO_SAMPLE *sample;
 	ALLEGRO_SAMPLE_INSTANCE *music;
 
-	ALLEGRO_SAMPLE *sample2;
-	ALLEGRO_SAMPLE_INSTANCE *music2;
+
 
 	bool notebook_enabled;
 };

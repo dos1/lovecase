@@ -514,8 +514,6 @@ bool ExitGame(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 	if (state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
 		UnloadCurrentGamestate(game);
-		DestroyGameData(game, game->data);
-		game->data = CreateGameData(game);
 		LoadGamestate(game, "menu");
 		StartGamestate(game, "menu");
 	}
