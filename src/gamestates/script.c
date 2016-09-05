@@ -69,7 +69,7 @@ struct GamestateResources {
 		struct Timeline *timeline;
 
 		ALLEGRO_BITMAP *icon;
-		ALLEGRO_BITMAP *notebook;
+		ALLEGRO_BITMAP *notebook, *notebook_hand;
 
 		bool notebook_on;
 
@@ -121,11 +121,12 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (data->notebook_on) {
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
 		al_draw_bitmap(data->notebook, 0, 0, 0);
-		al_draw_filled_rectangle(0, 0, 320, 20 + (game->data->evidence_len)*10, al_map_rgba(0, 0, 0, 192));
+		al_draw_filled_rectangle(0, 0, 320, 20 + (game->data->evidence_len)*10, al_map_rgba(0, 0, 0, 128));
 		for (int i=0; i<game->data->evidence_len; i++) {
 			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 5, (game->data->evidence_len-i)*10,
 			    ALLEGRO_ALIGN_LEFT, game->data->evidence[game->data->evidence_len-i-1]);
 		}
+		al_draw_bitmap(data->notebook_hand, 0, 0, 0);
 		al_draw_filled_rectangle(0, 160, 320, 180, al_map_rgba(0, 0, 0, 128));
 		DrawTextWithShadow(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
 		    ALLEGRO_ALIGN_CENTRE, "SPACE to go back");
@@ -166,7 +167,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	}
 
 	if (data->mouse_visible) {
-		al_draw_bitmap(data->cursor, data->mousex, data->mousey, 0);
+		al_draw_bitmap(data->cursor, data->mousex - 6, data->mousey - 1, 0);
 	}
 }
 
@@ -245,7 +246,6 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 
 			data->selected = data->dialog_highlight;
 		} else {
-			data->notebook_on = false;
 			data->speech_counter = 1;
 			data->delay = 1;
 			TM_SkipDelay(data->timeline);
@@ -556,7 +556,7 @@ bool ExecuteDialogTree(struct Game *game, struct TM_Action *action, enum TM_Acti
 	}
 	if (state == TM_ACTIONSTATE_RUNNING) {
 		if (data->skip_to) { return true; }
-		if (data->selected == -1) {
+		if ((data->selected == -1) || (data->selected > data->dialog_count)) {
 			return false;
 		} else {
 			data->dialog_enabled = false;
@@ -648,7 +648,7 @@ void InterpretCommand(struct Game *game, struct GamestateResources* data, struct
 		TM_AddAction(timeline, ExitGame, TM_AddToArgs(NULL, 1, data), "Exit");
 
 	} else {
-		PrintConsole(game, "UNRECOGNIZED COMMAND %s", buf);
+		FatalError(game, false, "UNRECOGNIZED COMMAND %s", buf);
 	}
 }
 
@@ -664,6 +664,7 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	data->script_file = al_fopen(GetDataFilePath(game, path), "r");
 	data->icon = al_load_bitmap(GetDataFilePath(game, GetGameName(game, "icons/%s.png")));
 	data->notebook = al_load_bitmap(GetDataFilePath(game, "notebook.png"));
+	data->notebook_hand = al_load_bitmap(GetDataFilePath(game, "notebook-hand.png"));
 	data->cursor = al_load_bitmap(GetDataFilePath(game, "cursor.png"));
 
 	data->sample_ev = al_load_sample(GetDataFilePath(game, "evidence.flac"));

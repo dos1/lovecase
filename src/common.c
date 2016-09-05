@@ -61,7 +61,7 @@ int DrawWrappedText(ALLEGRO_FONT *af,char atext[1024],ALLEGRO_COLOR fc, int x1, 
 		 strcpy(TempLine,"");
 		 for(q = 0;q < 40;q+=1)
 		 {
-			    sprintf(Lines[q],"");
+			 Lines[q][0] = 0;
 		 }
 		 //-------------------- Code Begins
 
@@ -70,7 +70,7 @@ int DrawWrappedText(ALLEGRO_FONT *af,char atext[1024],ALLEGRO_COLOR fc, int x1, 
 		 {
 			    strcpy(word,"");                                  // Truncate the string, to ensure there's no crazy stuff in there from memory.
 					sprintf(word,"%s ",pch);
-					sprintf(TempLine,"%s%s",TempLine,word);             // Append the word to the end of TempLine
+					sprintf(TempLine,"%s%s",TempLine,word);             // FIXME: Append the word to the end of TempLine
 					// This code checks for the new line character.
 					if(strcmp(word,breakchar) == 0)
 					{
