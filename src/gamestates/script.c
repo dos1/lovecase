@@ -28,7 +28,6 @@ struct GamestateResources {
 		// It gets created on load and then gets passed around to all other function calls.
 		char *cur_actor;
 		char *cur_emoti;
-		char *cur_scene;
 
 		char *skip_to;
 
@@ -458,7 +457,13 @@ bool SetActor(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 		if (data->actor) {
 			al_destroy_bitmap(data->actor);
 		}
-		data->cur_emoti = "default";
+		if (data->cur_emoti) {
+			free(data->cur_emoti);
+		}
+		if (data->cur_actor) {
+			free(data->cur_actor);
+		}
+		data->cur_emoti = strdup("default");
 		data->cur_actor = strdup(name);
 		data->actor = bitmap;
 	}
@@ -480,6 +485,9 @@ bool SetEmoti(struct Game *game, struct TM_Action *action, enum TM_ActionState s
 		PrintConsole(game, "Setting up emoti %s for actor %s", name, data->cur_actor);
 		if (data->actor) {
 			al_destroy_bitmap(data->actor);
+		}
+		if (data->cur_emoti) {
+			free(data->cur_emoti);
 		}
 		data->cur_emoti = strdup(name);
 		data->actor = bitmap;
@@ -689,6 +697,24 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	al_destroy_font(data->font);
 	al_fclose(data->script_file);
 	TM_Destroy(data->timeline);
+	if (data->scene) {
+		DestroyCharacter(game, data->scene);
+	}
+	if (data->actor) {
+		al_destroy_bitmap(data->actor);
+	}
+	if (data->cur_emoti) {
+		free(data->cur_emoti);
+	}
+	if (data->cur_actor) {
+		free(data->cur_actor);
+	}
+	al_destroy_bitmap(data->icon);
+	al_destroy_bitmap(data->notebook);
+	al_destroy_bitmap(data->notebook_hand);
+	al_destroy_bitmap(data->cursor);
+	al_destroy_sample_instance(data->evidence);
+	al_destroy_sample(data->sample_ev);
 	free(data);
 }
 

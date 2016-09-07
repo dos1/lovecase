@@ -39,7 +39,10 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	return data;
 }
 
-void DestroyGameData(struct Game *game, struct CommonResources *resources) {
+void DestroyGameData(struct Game *game, struct CommonResources *data) {
+	for (int i=0; i<data->evidence_len; i++) {
+		free(data->evidence[i]);
+	}
 	al_stop_sample_instance(game->data->music);
-	free(resources);
+	free(data);
 }
