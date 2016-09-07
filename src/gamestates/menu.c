@@ -33,6 +33,10 @@ struct MenuResources {
 
 		ALLEGRO_SAMPLE *sample;
 		ALLEGRO_SAMPLE_INSTANCE *music;
+
+		ALLEGRO_SAMPLE *sample_click;
+		ALLEGRO_SAMPLE_INSTANCE *click;
+
 };
 
 int Gamestate_ProgressCount = 1; // number of loading steps as reported by Gamestate_Load
@@ -68,8 +72,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 	// Here you can handle user input, expiring timers etc.
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
 		if (data->option >= 4) {
-			//al_stop_sample_instance(game->data->button);
-			//al_play_sample_instance(game->data->button);
+			al_stop_sample_instance(data->click);
+			al_play_sample_instance(data->click);
 			data->blink = 0;
 			data->option = 0;
 		} else {
@@ -78,8 +82,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 	}
 	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
 		if (ev->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-			//al_stop_sample_instance(game->data->button);
-			//al_play_sample_instance(game->data->button);
+			al_stop_sample_instance(data->click);
+			al_play_sample_instance(data->click);
 			data->blink = 0;
 			data->option--;
 			if (data->option==8) {
@@ -93,8 +97,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 			}
 		}
 		if (ev->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-			//al_stop_sample_instance(game->data->button);
-			//al_play_sample_instance(game->data->button);
+			al_stop_sample_instance(data->click);
+			al_play_sample_instance(data->click);
 			data->blink = 0;
 			data->option++;
 			if (data->option==4) {
@@ -109,8 +113,8 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 		}
 
 		if (ev->keyboard.keycode == ALLEGRO_KEY_ENTER) {
-			//al_stop_sample_instance(game->data->button);
-			//al_play_sample_instance(game->data->button);
+			al_stop_sample_instance(data->click);
+			al_play_sample_instance(data->click);
 			data->blink = 0;
 			switch (data->option) {
 				case 0:
@@ -238,6 +242,10 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 	al_attach_sample_instance_to_mixer(data->music, game->audio.music);
 	al_set_sample_instance_playmode(data->music, ALLEGRO_PLAYMODE_LOOP);
 
+	data->sample_click = al_load_sample(GetDataFilePath(game, "click.flac"));
+	data->click = al_create_sample_instance(data->sample_click);
+	al_attach_sample_instance_to_mixer(data->click, game->audio.fx);
+
 	return data;
 }
 
@@ -245,6 +253,11 @@ void Gamestate_Unload(struct Game *game, struct MenuResources* data) {
 	// Called when the gamestate library is being unloaded.
 	// Good place for freeing all allocated memory and resources.
 	al_destroy_font(data->font);
+	al_destroy_sample_instance(data->music);
+	al_destroy_sample(data->sample);
+	al_destroy_sample_instance(data->click);
+	al_destroy_sample(data->sample_click);
+	al_destroy_bitmap(data->bg);
 	free(data);
 }
 
