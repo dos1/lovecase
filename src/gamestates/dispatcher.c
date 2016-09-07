@@ -77,5 +77,4 @@ void Gamestate_Resume(struct Game *game, struct GamestateResources* data) {
 }
 
 // Ignore this for now.
-// TODO: Check, comment, refine and/or remove:
 void Gamestate_Reload(struct Game *game, struct GamestateResources* data) {}

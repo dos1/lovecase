@@ -136,8 +136,8 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (data->tut_text) {
 		al_draw_bitmap(data->notebook, 0, 0, 0);
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
-		    DrawWrappedText(data->font, data->tut_text, al_map_rgb(255,255,255), 5,  game->viewport.height / 2,
-				    310, ALLEGRO_ALIGN_CENTRE, true);
+		    DrawWrappedText(data->font, al_map_rgb(255,255,255), 5,  game->viewport.height / 2,
+				    310, ALLEGRO_ALIGN_CENTRE, data->tut_text);
 	}
 
 	if (data->status) {
@@ -151,8 +151,8 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (data->speech) {
 		al_draw_line(0, 140, 320, 140, data->speech_jack ? al_map_rgb(255,255,255) : al_map_rgb(255,222,255), 3);
 		al_draw_filled_rectangle(0, 140, 320, 180, al_map_rgba(0, 0, 0, 128));
-		DrawWrappedText(data->font, data->speech, data->speech_jack ? al_map_rgb(255,255,255) : al_map_rgb(255,222,255), 5, 145, 310,
-		    ALLEGRO_ALIGN_LEFT, true);
+		DrawWrappedText(data->font, data->speech_jack ? al_map_rgb(255,255,255) : al_map_rgb(255,222,255), 5, 145, 310,
+		    ALLEGRO_ALIGN_LEFT, data->speech);
 		if (data->speech_jack) {
 			al_draw_bitmap(data->icon, 2, 140-32, 0);
 		}
@@ -721,5 +721,4 @@ void Gamestate_Resume(struct Game *game, struct GamestateResources* data) {
 }
 
 // Ignore this for now.
-// TODO: Check, comment, refine and/or remove:
 void Gamestate_Reload(struct Game *game, struct GamestateResources* data) {}

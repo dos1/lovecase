@@ -267,8 +267,14 @@ void Gamestate_Stop(struct Game *game, struct MenuResources* data) {
 	}
 }
 
-// Ignore those for now.
-// TODO: Check, comment, refine and/or remove:
+void Gamestate_Pause(struct Game *game, struct MenuResources* data) {
+	// Called when gamestate gets paused (so only Draw is being called, no Logic not ProcessEvent)
+	// Pause your timers here.
+}
+
+void Gamestate_Resume(struct Game *game, struct MenuResources* data) {
+	// Called when gamestate gets resumed. Resume your timers here.
+}
+
+// Ignore this for now.
 void Gamestate_Reload(struct Game *game, struct MenuResources* data) {}
-void Gamestate_Pause(struct Game *game, struct MenuResources* data) {}
-void Gamestate_Resume(struct Game *game, struct MenuResources* data) {}
