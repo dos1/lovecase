@@ -135,7 +135,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 	if (data->tut_text) {
 		al_draw_bitmap(data->notebook, 0, 0, 0);
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
-		    DrawWrappedText(data->font, al_map_rgb(255,255,255), 5,  game->viewport.height / 2,
+		    DrawWrappedTextWithShadow(data->font, al_map_rgb(255,255,255), 5,  game->viewport.height / 2,
 				    310, ALLEGRO_ALIGN_CENTRE, data->tut_text);
 	}
 
