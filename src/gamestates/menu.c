@@ -22,6 +22,7 @@
 #include "../common.h"
 #include <libsuperderpy.h>
 #include <math.h>
+#include <stdio.h>
 #include <allegro5/allegro_primitives.h>
 
 struct MenuResources {
@@ -49,6 +50,22 @@ void Gamestate_Logic(struct Game *game, struct MenuResources* data) {
 	}
 }
 
+void OpenBrowser(char* url) {
+	char* cmd;
+#ifdef ALLEGRO_WINDOWS
+	cmd = "start \"\" \"%s\"";
+#elif defined(ALLEGRO_MACOSX)
+	cmd = "open \"%s\"";
+#elif defined(ALLEGRO_ANDROID)
+	cmd = "am start --user 0 -a android.intent.action.VIEW -d \"%s\"";
+#else
+	cmd = "xdg-open \"%s\"";
+#endif
+	char command[255];
+	snprintf(command, 255, cmd, url);
+	system(command);
+}
+
 void Gamestate_Draw(struct Game *game, struct MenuResources* data) {
 	// Called as soon as possible, but no sooner than next Gamestate_Logic call.
 	// Draw everything to the screen here.
@@ -57,138 +74,199 @@ void Gamestate_Draw(struct Game *game, struct MenuResources* data) {
 	al_draw_bitmap(data->bg, 0, 0, 0);
 	al_draw_filled_rectangle(0, 158, 320, 180, al_map_rgba(0,0,0,64));
 
-	const char* texts[] = { "< Start game >", "< Options >", "< dosowisko.net >", "< Quit >",
-	                        "< Fullscreen: on >", "< Music: on >", "< Sounds: on >", "< Voice: on >", "< Back >",
-	                        "< Fullscreen: off >", "< Music: off >", "< Sounds: off >", "< Voice: off >", "< Back >"
+	const char* texts[] = { "Start game", "Options", "dosowisko.net", "Quit",
+	                        "Fullscreen: on", "Music: on", "Sounds: on", "Voice: on", "Back",
+	                        "Fullscreen: off", "Music: off", "Sounds: off", "Voice: off", "Back"
 	                      };
 
 	if (data->blink < 45) {
-		DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 320/2, 165, ALLEGRO_ALIGN_CENTER, texts[data->option]);
+		if (game->data->touch) {
+			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 320/2, 165, ALLEGRO_ALIGN_CENTER, texts[data->option]);
+			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 10, 165, ALLEGRO_ALIGN_LEFT, "<");
+			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 310, 165, ALLEGRO_ALIGN_RIGHT, ">");
+		} else {
+			char text[255];
+			snprintf(text, 255, "< %s >", texts[data->option]);
+			DrawTextWithShadow(data->font, al_map_rgb(255,255,255), 320/2, 165, ALLEGRO_ALIGN_CENTER, text);
+		}
 	}
 }
+
+void MenuLeft(struct Game *game, struct MenuResources* data) {
+	al_stop_sample_instance(data->click);
+	al_play_sample_instance(data->click);
+	data->blink = 0;
+	data->option--;
+	if (data->option==8) {
+		data->option = 13;
+	}
+	if (data->option==3) {
+		data->option = 8;
+	}
+	if (data->option==-1) {
+		data->option = 3;
+	}
+
+#ifdef ALLEGRO_ANDROID
+	if (data->option==9) {
+		data->option = 13;
+	}
+	if (data->option==4) {
+		data->option = 8;
+	}
+#endif
+}
+
+void MenuRight(struct Game *game, struct MenuResources* data) {
+	al_stop_sample_instance(data->click);
+	al_play_sample_instance(data->click);
+	data->blink = 0;
+	data->option++;
+
+	if (data->option==4) {
+		data->option = 0;
+	}
+	if (data->option==9) {
+		data->option=4;
+#ifdef ALLEGRO_ANDROID
+		data->option++;
+#endif
+	}
+	if (data->option==14) {
+		data->option=9;
+#ifdef ALLEGRO_ANDROID
+		data->option++;
+#endif
+	}
+}
+
+void MenuEscape(struct Game *game, struct MenuResources* data) {
+	if (data->option >= 4) {
+		al_stop_sample_instance(data->click);
+		al_play_sample_instance(data->click);
+		data->blink = 0;
+		data->option = 0;
+	} else {
+		UnloadAllGamestates(game);
+	}
+}
+
+void MenuSelect(struct Game *game, struct MenuResources *data) {
+	al_stop_sample_instance(data->click);
+	al_play_sample_instance(data->click);
+	data->blink = 0;
+	switch (data->option) {
+		case 0:
+			UnloadAllGamestates(game);
+			DestroyGameData(game, game->data);
+			game->data = CreateGameData(game);
+			LoadGamestate(game, "dispatcher");
+			StartGamestate(game, "dispatcher");
+			break;
+		case 1:
+			data->option = 4;
+			break;
+		case 2:
+			OpenBrowser("https://dosowisko.net/");
+			UnloadAllGamestates(game);
+			break;
+		case 3:
+			UnloadAllGamestates(game);
+			break;
+		case 4:
+		case 9:
+			// fullscreen
+			game->config.fullscreen = !game->config.fullscreen;
+			if (game->config.fullscreen) {
+				SetConfigOption(game, "SuperDerpy", "fullscreen", "1");
+				al_hide_mouse_cursor(game->display);
+			} else {
+				SetConfigOption(game, "SuperDerpy", "fullscreen", "0");
+				al_show_mouse_cursor(game->display);
+			}
+			al_set_display_flag(game->display, ALLEGRO_FULLSCREEN_WINDOW, game->config.fullscreen);
+			SetupViewport(game, game->viewport_config);
+			PrintConsole(game, "Fullscreen toggled");
+			break;
+		case 5:
+		case 10:
+			// music
+			game->config.music = game->config.music ? 0 : 10;
+			SetConfigOption(game, "SuperDerpy", "music", game->config.music ? "10" : "0");
+			al_set_mixer_gain(game->audio.music, game->config.music/10.0);
+			break;
+		case 6:
+		case 11:
+			// sounds
+			game->config.fx = game->config.fx ? 0 : 10;
+			SetConfigOption(game, "SuperDerpy", "fx", game->config.fx ? "10" : "0");
+			al_set_mixer_gain(game->audio.fx, game->config.fx/10.0);
+			break;
+		case 7:
+		case 12:
+			// voices
+			game->config.voice = game->config.voice ? 0 : 10;
+			SetConfigOption(game, "SuperDerpy", "voice", game->config.voice ? "10" : "0");
+			al_set_mixer_gain(game->audio.voice, game->config.voice/10.0);
+			break;
+		case 8:
+		case 13:
+			data->option = 0;
+			break;
+	}
+}
+
 
 void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEGRO_EVENT *ev) {
 	// Called for each event in Allegro event queue.
 	// Here you can handle user input, expiring timers etc.
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_ESCAPE)) {
-		if (data->option >= 4) {
-			al_stop_sample_instance(data->click);
-			al_play_sample_instance(data->click);
-			data->blink = 0;
-			data->option = 0;
-		} else {
-			UnloadAllGamestates(game);
-		}
+		MenuEscape(game, data);
 	}
+	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_BACK)) {
+		MenuEscape(game, data);
+	}
+
 	if (ev->type==ALLEGRO_EVENT_KEY_DOWN) {
 		if (ev->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-			al_stop_sample_instance(data->click);
-			al_play_sample_instance(data->click);
-			data->blink = 0;
-			data->option--;
-			if (data->option==8) {
-				data->option = 13;
-			}
-			if (data->option==3) {
-				data->option = 8;
-			}
-			if (data->option==-1) {
-				data->option = 3;
-			}
+			MenuLeft(game, data);
 		}
 		if (ev->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-			al_stop_sample_instance(data->click);
-			al_play_sample_instance(data->click);
-			data->blink = 0;
-			data->option++;
-			if (data->option==4) {
-				data->option = 0;
-			}
-			if (data->option==9) {
-				data->option=4;
-			}
-			if (data->option==14) {
-				data->option=9;
-			}
+			MenuRight(game, data);
 		}
 
 		if (ev->keyboard.keycode == ALLEGRO_KEY_ENTER) {
-			al_stop_sample_instance(data->click);
-			al_play_sample_instance(data->click);
-			data->blink = 0;
-			switch (data->option) {
-				case 0:
-					UnloadAllGamestates(game);
-					DestroyGameData(game, game->data);
-					game->data = CreateGameData(game);
-					LoadGamestate(game, "dispatcher");
-					StartGamestate(game, "dispatcher");
-					break;
-				case 1:
-					data->option = 4;
-					break;
-				case 2:
-#ifdef ALLEGRO_WINDOWS
-					system("start \"\" \"https://dosowisko.net\"");
-#elif defined(ALLEGRO_MACOSX)
-					system("open \"https://dosowisko.net\"");
-#else
-					system("xdg-open \"https://dosowisko.net\"");
-#endif
-					UnloadAllGamestates(game);
-					break;
-				case 3:
-					UnloadAllGamestates(game);
-					break;
-				case 4:
-				case 9:
-					// fullscreen
-					game->config.fullscreen = !game->config.fullscreen;
-					if (game->config.fullscreen) {
-						SetConfigOption(game, "SuperDerpy", "fullscreen", "1");
-						al_hide_mouse_cursor(game->display);
-					} else {
-						SetConfigOption(game, "SuperDerpy", "fullscreen", "0");
-						al_show_mouse_cursor(game->display);
-					}
-					al_set_display_flag(game->display, ALLEGRO_FULLSCREEN_WINDOW, game->config.fullscreen);
-					SetupViewport(game, game->viewport_config);
-					PrintConsole(game, "Fullscreen toggled");
-					break;
-				case 5:
-				case 10:
-					// music
-					game->config.music = game->config.music ? 0 : 10;
-					SetConfigOption(game, "SuperDerpy", "music", game->config.music ? "10" : "0");
-					al_set_mixer_gain(game->audio.music, game->config.music/10.0);
-					break;
-				case 6:
-				case 11:
-					// sounds
-					game->config.fx = game->config.fx ? 0 : 10;
-					SetConfigOption(game, "SuperDerpy", "fx", game->config.fx ? "10" : "0");
-					al_set_mixer_gain(game->audio.fx, game->config.fx/10.0);
-					break;
-				case 7:
-				case 12:
-					// voices
-					game->config.voice = game->config.voice ? 0 : 10;
-					SetConfigOption(game, "SuperDerpy", "voice", game->config.voice ? "10" : "0");
-					al_set_mixer_gain(game->audio.voice, game->config.voice/10.0);
-					break;
-				case 8:
-				case 13:
-					data->option = 0;
-					break;
+			MenuSelect(game, data);
+		}
+	}
+
+	if (ev->type==ALLEGRO_EVENT_TOUCH_BEGIN) {
+		if (ev->touch.primary) {
+			int x = ev->touch.x;
+			int y = ev->touch.y;
+			WindowCoordsToViewport(game, &x, &y);
+
+			if ((y >= 158) && (y <= 180)) {
+				if ((x >= 0) && (x < 40)) {
+					MenuLeft(game, data);
+				} else if ((x > 280) && (x <= 320)) {
+					MenuRight(game, data);
+				} else {
+					MenuSelect(game, data);
+				}
 			}
 		}
 	}
+
 
 	switch (data->option) {
 		case 4:
 			if (!game->config.fullscreen) {
 				data->option += 5;
 			}
+#ifdef ALLEGRO_ANDROID
+			data->option++;
+#endif
 			break;
 		case 5:
 			if (!game->config.music) {
@@ -209,6 +287,9 @@ void Gamestate_ProcessEvent(struct Game *game, struct MenuResources* data, ALLEG
 			if (game->config.fullscreen) {
 				data->option -= 5;
 			}
+#ifdef ALLEGRO_ANDROID
+			data->option++;
+#endif
 			break;
 		case 10:
 			if (game->config.music) {

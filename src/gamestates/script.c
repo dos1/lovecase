@@ -43,6 +43,7 @@ struct GamestateResources {
 
 		struct Character *scene;
 		ALLEGRO_BITMAP *actor;
+		ALLEGRO_BITMAP *button;
 
 		ALLEGRO_FILE *script_file;
 
@@ -115,8 +116,6 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 		al_draw_bitmap(data->actor, 0, 0, 0);
 	}
 
-	al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 255-data->fade));
-
 	if (data->notebook_on) {
 		al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 192));
 		al_draw_bitmap(data->notebook, 0, 0, 0);
@@ -128,7 +127,7 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 		al_draw_bitmap(data->notebook_hand, 0, 0, 0);
 		al_draw_filled_rectangle(0, 160, 320, 180, al_map_rgba(0, 0, 0, 128));
 		DrawTextWithShadow(data->font, al_map_rgb(255,255,255), game->viewport.width / 2, 167,
-		    ALLEGRO_ALIGN_CENTRE, "SPACE to go back");
+		    ALLEGRO_ALIGN_CENTRE, game->data->touch ? "Touch to go back" : "SPACE to go back");
 		return;
 	}
 
@@ -157,17 +156,25 @@ void Gamestate_Draw(struct Game *game, struct GamestateResources* data) {
 		}
 	}
 	if (data->dialog_enabled) {
-		al_draw_line(0, 170-((data->dialog_count+1)*10), 320, 170-((data->dialog_count+1)*10), al_map_rgb(255,255,255), 3);
-		al_draw_filled_rectangle(0, 170-((data->dialog_count+1)*10), 320, 180, al_map_rgba(0, 0, 0, 192));
+		int height = game->data->touch ? 16 : 10;
+		al_draw_line(0, 170-((data->dialog_count+1)*height), 320, 170-((data->dialog_count+1)*height), al_map_rgb(255,255,255), 3);
+		al_draw_filled_rectangle(0, 170-((data->dialog_count+1)*height), 320, 180, al_map_rgba(0, 0, 0, 192));
 		for (int i=0; i<=data->dialog_count; i++) {
-			al_draw_text(data->font, (i == data->dialog_highlight) ? al_map_rgb(128,255,255) : al_map_rgb(255,255,255), 5, 175 - (data->dialog_count+1-i)*10,
+			al_draw_text(data->font, (i == data->dialog_highlight) ? al_map_rgb(128,255,255) : al_map_rgb(255,255,255), 5, 175 - (data->dialog_count+1-i)*height + (height-10)/2,
 			    ALLEGRO_ALIGN_LEFT, data->dialogs[i].text + 6);
 		}
 	}
 
+	if ((game->data->notebook_enabled) && (game->data->touch)) {
+		al_draw_bitmap(data->button, 320-31, 2, 0);
+	}
+
+	al_draw_filled_rectangle(0, 0, 320, 180, al_map_rgba(0, 0, 0, 255-data->fade));
+
 	if (data->mouse_visible) {
 		al_draw_bitmap(data->cursor, data->mousex - 6, data->mousey - 1, 0);
 	}
+
 }
 
 void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, ALLEGRO_EVENT *ev) {
@@ -200,6 +207,13 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		data->notebook_on = game->data->notebook_enabled;
 		data->tut_text = NULL;
 	}
+	if ((data->tut_text) && (ev->type==ALLEGRO_EVENT_TOUCH_END)) {
+		data->notebook_on = game->data->notebook_enabled;
+		data->tut_text = NULL;
+	}
+	if ((data->notebook_on) && (ev->type==ALLEGRO_EVENT_TOUCH_END)) {
+		data->notebook_on = false;
+	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_1)) {
 		data->dialog_highlight = 0;
 	}
@@ -226,28 +240,52 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		data->selected = 3;
 	}
 
-	if (ev->type==ALLEGRO_EVENT_MOUSE_AXES) {
-		data->mousex = (ev->mouse.x / (float)al_get_display_width(game->display)) * game->viewport.width;
-		data->mousey = (ev->mouse.y / (float)al_get_display_height(game->display)) * game->viewport.height;
-		data->mouse_visible = 180;
+	if ((ev->type==ALLEGRO_EVENT_MOUSE_AXES) || (ev->type==ALLEGRO_EVENT_TOUCH_MOVE)) {
+		if (ev->type==ALLEGRO_EVENT_MOUSE_AXES) {
+			data->mousex = (ev->mouse.x / (float)al_get_display_width(game->display)) * game->viewport.width;
+			data->mousey = (ev->mouse.y / (float)al_get_display_height(game->display)) * game->viewport.height;
+			data->mouse_visible = 180;
+		} else {
+			data->mousex = (ev->touch.x / (float)al_get_display_width(game->display)) * game->viewport.width;
+			data->mousey = (ev->touch.y / (float)al_get_display_height(game->display)) * game->viewport.height;
+		}
 
+		int height = game->data->touch ? 16 : 10;
 		if (data->dialog_enabled) {
-			if (data->mousey >= (175 - (data->dialog_count+1)*10)) {
-				int y = data->mousey  - (175 - (data->dialog_count+1)*10);
-				data->dialog_highlight = y / 10;
+			if (data->mousey >= (175 - (data->dialog_count+1)*height)) {
+				int y = data->mousey  - (175 - (data->dialog_count+1)*height);
+				data->dialog_highlight = y / height;
 			} else {
 				data->dialog_highlight = -1;
 			}
 		}
 	}
-	if (ev->type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-		if (data->dialog_enabled) {
 
-			data->selected = data->dialog_highlight;
+
+	if (ev->type==ALLEGRO_EVENT_TOUCH_BEGIN) {
+		data->mouse_visible = 0;
+	}
+	if ((ev->type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) || (ev->type==ALLEGRO_EVENT_TOUCH_END)) {
+		if (ev->type==ALLEGRO_EVENT_MOUSE_AXES) {
+			data->mousex = (ev->mouse.x / (float)al_get_display_width(game->display)) * game->viewport.width;
+			data->mousey = (ev->mouse.y / (float)al_get_display_height(game->display)) * game->viewport.height;
+			data->mouse_visible = 180;
 		} else {
-			data->speech_counter = 1;
-			data->delay = 1;
-			TM_SkipDelay(data->timeline);
+			data->mousex = (ev->touch.x / (float)al_get_display_width(game->display)) * game->viewport.width;
+			data->mousey = (ev->touch.y / (float)al_get_display_height(game->display)) * game->viewport.height;
+		}
+		if ((data->mousex > 320-32) && (data->mousey < 30)) {
+			data->notebook_on = game->data->notebook_enabled;
+			data->tut_text = NULL;
+		} else {
+			if (data->dialog_enabled) {
+
+				data->selected = data->dialog_highlight;
+			} else {
+				data->speech_counter = 1;
+				data->delay = 1;
+				TM_SkipDelay(data->timeline);
+			}
 		}
 	}
 }
@@ -681,6 +719,8 @@ void* Gamestate_Load(struct Game *game, void (*progress)(struct Game*)) {
 
 	data->timeline = TM_Init(game, "script");
 
+	data->button = al_load_bitmap(GetDataFilePath(game, "button.png"));
+
 	do {
 		char buf[255];
 		al_fgets(data->script_file, buf, 255);
@@ -709,6 +749,7 @@ void Gamestate_Unload(struct Game *game, struct GamestateResources* data) {
 	if (data->cur_actor) {
 		free(data->cur_actor);
 	}
+	al_destroy_bitmap(data->button);
 	al_destroy_bitmap(data->icon);
 	al_destroy_bitmap(data->notebook);
 	al_destroy_bitmap(data->notebook_hand);

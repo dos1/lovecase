@@ -19,13 +19,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "defines.h"
 #include <stdio.h>
 #include <signal.h>
 #include "common.h"
 #include <libsuperderpy.h>
-
-#define GAMENAME "lovecase"
-#define PRETTY_GAMENAME "Love Case"
 
 void derp(int sig) {
 	ssize_t __attribute__((unused)) n = write(STDERR_FILENO, "Segmentation fault\nI just don't know what went wrong!\n", 54);
@@ -38,17 +36,19 @@ int main(int argc, char** argv) {
 	srand(time(NULL));
 
 	al_set_org_name("dosowisko.net");
-	al_set_app_name(PRETTY_GAMENAME);
+	al_set_app_name(LIBSUPERDERPY_GAMENAME_PRETTY);
 
-	struct Game *game = libsuperderpy_init(argc, argv, GAMENAME, (struct Viewport){320, 180});
+	struct Game *game = libsuperderpy_init(argc, argv, LIBSUPERDERPY_GAMENAME, (struct Viewport){320, 180});
 	if (!game) { return 1; }
 
-	al_set_window_title(game->display, PRETTY_GAMENAME);
+	al_set_window_title(game->display, LIBSUPERDERPY_GAMENAME_PRETTY);
 
 	LoadGamestate(game, "dosowisko");
 	StartGamestate(game, "dosowisko");
 
 	game->data = CreateGameData(game);
+
+	game->eventHandler = &GlobalEventHandler;
 
 	libsuperderpy_run(game);
 

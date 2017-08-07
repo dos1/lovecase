@@ -6,4 +6,5 @@ others
 SuperDerpy.ini
 sync*
 *.user
-utils
+build-*
+.directory
