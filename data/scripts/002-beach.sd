@@ -25,11 +25,11 @@ EMOTI default
 -----
 DIALO 2j007 What is love?
   CMD EMOTI surprised
-  CMD SAYAC 2b008 They say it's methylethylamine in our brains, but I think it's way deeper.
+  CMD SAYAC 2b008 They say it's phenethylamine in our brains, but I think it's way deeper.
   CMD EMOTI default
   CMD SAYAC 2b009 Is that what a detective should be looking for though?
   CMD SAYJK 2j011 Well, yes, it is.
-  CMD EVIDE evi11 100 methylethylamine
+  CMD EVIDE evi11 100 phenethylamine
   CMD EMOTI smirk
   CMD SAYAC 2b010 You're weird.
   CMD EMOTI default
