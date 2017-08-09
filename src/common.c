@@ -63,7 +63,7 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	data->notebook_enabled = game->config.debug;
 
 	data->touch = false;
-#ifndef ALLEGRO_ANDROID
+#ifdef ALLEGRO_ANDROID
 	data->touch = true;
 #endif
 
