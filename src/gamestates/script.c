@@ -213,6 +213,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 	}
 	if ((data->notebook_on) && (ev->type==ALLEGRO_EVENT_TOUCH_END)) {
 		data->notebook_on = false;
+		return;
 	}
 	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_1)) {
 		data->dialog_highlight = 0;
@@ -240,7 +241,7 @@ void Gamestate_ProcessEvent(struct Game *game, struct GamestateResources* data, 
 		data->selected = 3;
 	}
 
-	if ((ev->type==ALLEGRO_EVENT_MOUSE_AXES) || (ev->type==ALLEGRO_EVENT_TOUCH_MOVE)) {
+	if ((ev->type==ALLEGRO_EVENT_MOUSE_AXES) || (ev->type==ALLEGRO_EVENT_TOUCH_BEGIN) || (ev->type==ALLEGRO_EVENT_TOUCH_MOVE)) {
 		if (ev->type==ALLEGRO_EVENT_MOUSE_AXES) {
 			data->mousex = (ev->mouse.x / (float)al_get_display_width(game->display)) * game->viewport.width;
 			data->mousey = (ev->mouse.y / (float)al_get_display_height(game->display)) * game->viewport.height;
