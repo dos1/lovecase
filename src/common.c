@@ -20,10 +20,10 @@
  */
 
 #include "common.h"
-#include <stdio.h>
 #include <libsuperderpy.h>
+#include <stdio.h>
 
-bool GlobalEventHandler(struct Game *game, ALLEGRO_EVENT *ev) {
+bool GlobalEventHandler(struct Game* game, ALLEGRO_EVENT* ev) {
 	if (ev->type == ALLEGRO_EVENT_TOUCH_BEGIN) {
 		game->data->touch = true;
 	}
@@ -32,25 +32,18 @@ bool GlobalEventHandler(struct Game *game, ALLEGRO_EVENT *ev) {
 		game->data->touch = false;
 	}
 #endif
-	if ((ev->type==ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_F)) {
-		game->config.fullscreen = !game->config.fullscreen;
-		if (game->config.fullscreen) {
-			SetConfigOption(game, "SuperDerpy", "fullscreen", "1");
-			al_hide_mouse_cursor(game->display);
-		} else {
-			SetConfigOption(game, "SuperDerpy", "fullscreen", "0");
-			al_show_mouse_cursor(game->display);
-		}
-		al_set_display_flag(game->display, ALLEGRO_FULLSCREEN_WINDOW, game->config.fullscreen);
-		SetupViewport(game, game->viewport_config);
-		PrintConsole(game, "Fullscreen toggled");
+	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_F)) {
+		ToggleFullscreen(game);
+	}
+	if ((ev->type == ALLEGRO_EVENT_KEY_DOWN) && (ev->keyboard.keycode == ALLEGRO_KEY_M)) {
+		ToggleMute(game);
 	}
 
 	return false;
 }
 
-struct CommonResources* CreateGameData(struct Game *game) {
-	struct CommonResources *data = calloc(1, sizeof(struct CommonResources));
+struct CommonResources* CreateGameData(struct Game* game) {
+	struct CommonResources* data = calloc(1, sizeof(struct CommonResources));
 	data->script = "000-intro";
 	data->evidence_len = 0;
 	data->evidence[data->evidence_len] = NULL;
@@ -60,7 +53,7 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	al_attach_sample_instance_to_mixer(data->music, game->audio.music);
 	al_set_sample_instance_playmode(data->music, ALLEGRO_PLAYMODE_LOOP);
 
-	data->notebook_enabled = game->config.debug;
+	data->notebook_enabled = game->config.debug.enabled;
 
 	data->touch = false;
 #ifdef ALLEGRO_ANDROID
@@ -70,10 +63,10 @@ struct CommonResources* CreateGameData(struct Game *game) {
 	return data;
 }
 
-void DestroyGameData(struct Game *game, struct CommonResources *data) {
-	for (int i=0; i<data->evidence_len; i++) {
-		free(data->evidence[i]);
+void DestroyGameData(struct Game* game) {
+	for (int i = 0; i < game->data->evidence_len; i++) {
+		free(game->data->evidence[i]);
 	}
 	al_stop_sample_instance(game->data->music);
-	free(data);
+	free(game->data);
 }

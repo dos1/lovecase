@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2019 Sebastian Krzyszkowiak <dos@dosowisko.net> -->
+<component type="desktop-application">
+  <id>net.dosowisko.lovecase</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Love Case</name>
+  <summary>Be a detective on a case of finding love</summary>
+
+  <description>
+    <p>
+      Detective Jack got a new case to solve. 
+
+      He's going to investigate love. 
+
+      A simple visual novel made on a Warsaw Film School Game Jam 2016 with the theme "Love".
+    </p>
+  </description>
+
+  <launchable type="desktop-id">lovecase.desktop</launchable>
+
+  <developer_name>dosowisko.net</developer_name>
+
+  <update_contact>dos_AT_dosowisko.net</update_contact>
+
+  <provides>
+    <binary>lovecase</binary>
+  </provides>
+
+</component>
