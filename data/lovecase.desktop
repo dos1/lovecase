@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Super Examples
-Exec=superexamples
-Comment=libsuperderpy game engine examples
-Icon=superexamples
+Name=Love Case
+Exec=lovecase
+Comment=Detective Jack is on a case - to find love.
+Icon=lovecase
 Terminal=false
 Categories=Game;ArcadeGame;
