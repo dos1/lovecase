@@ -308,7 +308,7 @@ static TM_ACTION(Delay) {
 	char* arg = TM_GetArg(action->arguments, 0);
 	if (action->state == TM_ACTIONSTATE_START) {
 		if (data->skip_to) { return true; }
-		data->delay = strtoumax(arg, NULL, 10) * 60;
+		data->delay = strtoul(arg, NULL, 10) * 60;
 	}
 	if (action->state == TM_ACTIONSTATE_RUNNING) {
 		if (data->skip_to) { return true; }
@@ -363,7 +363,7 @@ static TM_ACTION(ShowEvidence) {
 		score[2] = s[2];
 		score[3] = 0;
 
-		game->data->score += strtoumax(score, NULL, 10);
+		game->data->score += strtoul(score, NULL, 10);
 
 		char path[255];
 
@@ -616,7 +616,7 @@ void InterpretCommand(struct Game* game, struct GamestateResources* data, struct
 	} else if (strcmp(cmd, "DELAY") == 0) {
 		TM_AddAction(timeline, Delay, TM_AddToArgs(NULL, 1, arg));
 
-		//TM_AddDelay(data->timeline, strtoumax(arg, NULL, 10)*60);
+		//TM_AddDelay(data->timeline, strtoul(arg, NULL, 10)*60);
 	} else if (strcmp(cmd, "SAYAC") == 0) {
 		PrintConsole(game, "say actor");
 		TM_AddAction(timeline, Speak, TM_AddToArgs(NULL, 2, arg, 0));
